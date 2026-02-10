@@ -7,26 +7,10 @@ A full-stack web application for hygiene tracking and community health awareness
 - **Frontend:** React 18, TypeScript, Vite, React Router
 - **Backend / Auth / DB:** Supabase (PostgreSQL, Auth, optional Storage/Realtime)
 
-## Folder Structure
+## Design Mockup
 
 ```
-dww/
-├── frontend/                 # React (Vite) app
-│   ├── public/
-│   ├── src/
-│   │   ├── components/       # Header, Footer, Layout
-│   │   ├── lib/              # Supabase client, utilities
-│   │   ├── pages/            # Home, About, Contact, SignUp, LogIn
-│   │   ├── App.tsx
-│   │   ├── main.tsx
-│   │   └── index.css
-│   ├── .env.example
-│   ├── index.html
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── vite.config.ts
-├── .env.example              # Root env template (optional)
-└── README.md
+https://www.figma.com/make/fyhkrwes2JmChFyT6KDTJa/Design-HygieneWatch-UI-Mockup?fullscreen=1&t=DFf2DrrTHpZAvZ0o-1&preview-route=%2Fuser
 ```
 
 There is no separate backend server; Supabase provides backend-as-a-service (auth, database, storage).

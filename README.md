@@ -9,9 +9,7 @@ A full-stack web application for hygiene tracking and community health awareness
 
 ## Design Mockup
 
-```
 https://www.figma.com/make/fyhkrwes2JmChFyT6KDTJa/Design-HygieneWatch-UI-Mockup?fullscreen=1&t=DFf2DrrTHpZAvZ0o-1&preview-route=%2Fuser
-```
 
 There is no separate backend server; Supabase provides backend-as-a-service (auth, database, storage).
 

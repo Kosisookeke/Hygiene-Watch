@@ -95,5 +95,3 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ```bash
 npm run build
-npm run preview   # optional: serve dist/
-```

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Water drop shape -->
+  <path d="M16 4c0 0-8 10-8 16a8 8 0 0 0 16 0c0-6-8-16-8-16z" fill="#0f5132"/>
+  <!-- Checkmark for hygiene/clean -->
+  <path d="M11 16l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

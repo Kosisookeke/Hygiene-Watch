@@ -7,9 +7,11 @@ A full-stack web application for hygiene tracking and community health awareness
 - **Frontend:** React 18, TypeScript, Vite, React Router
 - **Backend / Auth / DB:** Supabase (PostgreSQL, Auth, optional Storage/Realtime)
 
-## Design Mockup
+## Design Mockup & Video for product demonstration
 
 https://www.figma.com/make/fyhkrwes2JmChFyT6KDTJa/Design-HygieneWatch-UI-Mockup?fullscreen=1&t=DFf2DrrTHpZAvZ0o-1&preview-route=%2Fuser
+
+https://www.loom.com/share/6226b94a4f644efa9b9d22c6be4a8f36
 
 There is no separate backend server; Supabase provides backend-as-a-service (auth, database, storage).
 
@@ -59,7 +61,6 @@ Only variables prefixed with `VITE_` are exposed to the frontend. Do not put sec
    - For **Google sign-in**: enable **Google** under Providers, then in [Google Cloud Console](https://console.cloud.google.com/) create OAuth 2.0 credentials (Web application), add your **Authorized redirect URI** (from Supabase: Authentication → Providers → Google → "Redirect URL"), and paste the Client ID and Client Secret into Supabase.
    - **Authentication → URL Configuration**: set **Site URL** to `http://localhost:5173` for dev (and your production URL when you deploy). Add `http://localhost:5173/` to **Redirect URLs** so Google OAuth can return to your app.
 
-
 ---
 
 ## 4. Run the App
@@ -77,3 +78,4 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ```bash
 npm run build
+```

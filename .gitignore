@@ -3,6 +3,12 @@
 .env.local
 .env.*.local
 
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
 # IDE / OS
 .DS_Store
 Thumbs.db

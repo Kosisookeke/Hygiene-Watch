@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { sendPasswordResetEmail } from 'firebase/auth'
+import { auth } from '../lib/firebase'
 import LogoIcon from '../components/LogoIcon'
 import { IconEnvelope } from '../components/AuthIcons'
-import { supabase } from '../lib/supabase'
 import styles from './Auth.module.css'
 
 export default function ForgotPassword() {
@@ -15,15 +16,15 @@ export default function ForgotPassword() {
     e.preventDefault()
     setError(null)
     setLoading(true)
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
-    })
-    setLoading(false)
-    if (resetError) {
-      setError(resetError.message)
-      return
+    try {
+      await sendPasswordResetEmail(auth, email, { url: `${window.location.origin}/login` })
+      setSent(true)
+    } catch (err: unknown) {
+      const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Failed to send reset email.'
+      setError(message)
+    } finally {
+      setLoading(false)
     }
-    setSent(true)
   }
 
   return (
@@ -35,7 +36,7 @@ export default function ForgotPassword() {
         </Link>
         <h1 className={styles.leftTitle}>Reset your password.</h1>
         <p className={styles.leftSub}>
-          Enter your email and we’ll send you a link to reset your password.
+          Enter your email and we'll send you a link to reset your password.
         </p>
         <div className={styles.leftImage}>
           <img src="https://picsum.photos/seed/sign-in-hygiene-tracking/500/375" alt="" />

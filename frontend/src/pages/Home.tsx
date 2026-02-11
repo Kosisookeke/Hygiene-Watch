@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { collection, addDoc } from 'firebase/firestore'
+import { db } from '../lib/firebase'
 import styles from './Home.module.css'
 import contactStyles from './Contact.module.css'
 
@@ -20,17 +21,15 @@ export default function Home() {
 
     setIsSubscribing(true)
     try {
-      const { error } = await supabase
-        .from('email_subscriptions')
-        .insert({ email: learnMoreEmail.trim() })
-
-      if (error) {
-        console.error('Failed to save email subscription', error)
-        window.alert(`Sorry, something went wrong: ${error.message}`)
-      } else {
-        window.alert('Thanks for subscribing!')
-        setLearnMoreEmail('')
-      }
+      await addDoc(collection(db, 'email_subscriptions'), {
+        email: learnMoreEmail.trim(),
+        created_at: new Date().toISOString(),
+      })
+      window.alert('Thanks for subscribing!')
+      setLearnMoreEmail('')
+    } catch (err) {
+      console.error('Failed to save email subscription', err)
+      window.alert(`Sorry, something went wrong: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setIsSubscribing(false)
     }

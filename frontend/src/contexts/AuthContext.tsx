@@ -1,7 +1,14 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
-import { supabase } from '../lib/supabase'
-import type { User } from '@supabase/supabase-js'
+import {
+  onAuthStateChanged,
+  signOut as firebaseSignOut,
+  type User,
+} from 'firebase/auth'
+import { doc, onSnapshot, setDoc } from 'firebase/firestore'
+import { auth, db, hasFirebaseConfig } from '../lib/firebase'
 import type { Profile, AppRole } from '../lib/types'
+
+const PROFILES_COLLECTION = 'profiles'
 
 interface AuthContextValue {
   user: User | null
@@ -15,52 +22,75 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 const DEFAULT_ROLE: AppRole = 'user'
 
+function profileFromDoc(id: string, data: Record<string, unknown> | undefined): Profile | null {
+  if (!data) return null
+  return {
+    id,
+    full_name: (data.full_name as string) ?? null,
+    email: (data.email as string) ?? null,
+    role: (data.role as AppRole) ?? DEFAULT_ROLE,
+    created_at: (data.created_at as string) ?? '',
+    updated_at: (data.updated_at as string) ?? '',
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const fetchProfile = useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, full_name, role, created_at, updated_at')
-      .eq('id', userId)
-      .single()
-    if (error) {
-      console.warn('Profile fetch failed:', error.message)
-      setProfile(null)
-      return DEFAULT_ROLE
+  useEffect(() => {
+    if (!hasFirebaseConfig) {
+      setLoading(false)
+      return
     }
-    setProfile(data as Profile)
-    return (data?.role as AppRole) ?? DEFAULT_ROLE
+    let profileUnsub: (() => void) | null = null
+    const unsubAuth = onAuthStateChanged(auth, (firebaseUser) => {
+      if (profileUnsub) {
+        profileUnsub()
+        profileUnsub = null
+      }
+      setUser(firebaseUser ?? null)
+      if (!firebaseUser) {
+        setProfile(null)
+        setLoading(false)
+        return
+      }
+      const profileRef = doc(db, PROFILES_COLLECTION, firebaseUser.uid)
+      profileUnsub = onSnapshot(
+        profileRef,
+        async (snap) => {
+          if (snap.exists()) {
+            const data = snap.data()
+            setProfile(profileFromDoc(firebaseUser.uid, data))
+          } else {
+            const now = new Date().toISOString()
+            const newProfile = {
+              full_name: firebaseUser.displayName ?? null,
+              email: firebaseUser.email ?? null,
+              role: DEFAULT_ROLE,
+              created_at: now,
+              updated_at: now,
+            }
+            await setDoc(profileRef, newProfile)
+            setProfile({ id: firebaseUser.uid, ...newProfile })
+          }
+          setLoading(false)
+        },
+        () => {
+          setProfile(null)
+          setLoading(false)
+        }
+      )
+    })
+    return () => {
+      if (profileUnsub) profileUnsub()
+      unsubAuth()
+    }
   }, [])
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        await fetchProfile(session.user.id)
-      } else {
-        setProfile(null)
-      }
-      setLoading(false)
-    })
-
-    const session = supabase.auth.getSession()
-    session.then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user)
-        fetchProfile(session.user.id).then(() => setLoading(false))
-      } else {
-        setLoading(false)
-      }
-    }).catch(() => setLoading(false))
-
-    return () => subscription.unsubscribe()
-  }, [fetchProfile])
-
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut()
+    if (hasFirebaseConfig) await firebaseSignOut(auth)
     setUser(null)
     setProfile(null)
   }, [])

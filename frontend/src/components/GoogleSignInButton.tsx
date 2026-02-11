@@ -1,7 +1,6 @@
 import type { ButtonHTMLAttributes } from 'react'
 import styles from './GoogleSignInButton.module.css'
 
-/** Official Google "G" logo - standard color version */
 function GoogleLogo() {
   return (
     <svg className={styles.googleLogo} width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden>
@@ -14,7 +13,6 @@ function GoogleLogo() {
 }
 
 interface GoogleSignInButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /** "Continue with Google" | "Sign up with Google" | "Sign in with Google" */
   label?: 'continue' | 'signup' | 'signin'
 }
 

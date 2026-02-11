@@ -1,4 +1,3 @@
-/** Transparent outline icons for login/signup (AncestorLens-style) */
 const iconClass = 'auth-field-icon'
 
 export function IconUser() {

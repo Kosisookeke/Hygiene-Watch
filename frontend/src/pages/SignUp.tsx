@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from 'firebase/auth'
+import { auth } from '../lib/firebase'
 import LogoIcon from '../components/LogoIcon'
 import GoogleSignInButton from '../components/GoogleSignInButton'
 import { IconUser, IconEnvelope, IconLock, IconEye, IconEyeOff } from '../components/AuthIcons'
-import { supabase } from '../lib/supabase'
 import styles from './Auth.module.css'
 
 export default function SignUp() {
@@ -34,35 +35,34 @@ export default function SignUp() {
     }
 
     setLoading(true)
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: name } },
-    })
-    setLoading(false)
-
-    if (signUpError) {
-      setError(signUpError.message)
-      return
+    try {
+      const { user } = await createUserWithEmailAndPassword(auth, email, password)
+      if (name) await updateProfile(user, { displayName: name })
+      setSuccess('Account created! You can sign in below.')
+      form.reset()
+      setTimeout(() => navigate('/login'), 2000)
+    } catch (err: unknown) {
+      const code = err && typeof err === 'object' && 'code' in err ? (err as { code: string }).code : ''
+      const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Sign up failed.'
+      if (code === 'auth/email-already-in-use') setError('An account with this email already exists.')
+      else setError(message)
+    } finally {
+      setLoading(false)
     }
-    if (data?.user && !data.user.identities?.length) {
-      setError('An account with this email already exists.')
-      return
-    }
-    setSuccess('Account created! Check your email to confirm, or sign in below.')
-    form.reset()
-    setTimeout(() => navigate('/login'), 2000)
   }
 
   const handleGoogleSignIn = async () => {
     setError(null)
     setLoading(true)
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/` },
-    })
-    setLoading(false)
-    if (oauthError) setError(oauthError.message)
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider())
+      navigate('/', { replace: true })
+    } catch (err: unknown) {
+      const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Google sign up failed.'
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

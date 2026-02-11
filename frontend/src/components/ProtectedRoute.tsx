@@ -4,7 +4,6 @@ import type { AppRole } from '../lib/types'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
-  /** Require at least this role (user | inspector | admin). Default: any logged-in user */
   requiredRole?: AppRole
 }
 

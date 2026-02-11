@@ -1,7 +1,6 @@
 import type { SVGProps } from 'react'
 
 interface LogoIconProps extends SVGProps<SVGSVGElement> {
-  /** Use 'white' on dark backgrounds (e.g. footer) */
   variant?: 'default' | 'white'
 }
 

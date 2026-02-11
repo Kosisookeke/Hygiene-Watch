@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { supabase } from '../lib/supabase'
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'
+import { db } from '../lib/firebase'
 import type { AppRole, Profile } from '../lib/types'
 import styles from './Dashboard.module.css'
 import adminStyles from './Admin.module.css'
+
+const PROFILES_COLLECTION = 'profiles'
 
 export default function Admin() {
   const { role } = useAuth()
@@ -19,18 +22,29 @@ export default function Admin() {
     let mounted = true
     setLoading(true)
     setError(null)
-    supabase
-      .from('profiles')
-      .select('id, full_name, email, role, created_at, updated_at')
-      .order('created_at', { ascending: false })
-      .then(({ data, error: err }) => {
+    getDocs(collection(db, PROFILES_COLLECTION))
+      .then((snap) => {
         if (!mounted) return
-        setLoading(false)
-        if (err) {
-          setError(err.message)
-          return
-        }
-        setProfiles((data as Profile[]) ?? [])
+        const list: Profile[] = []
+        snap.docs.forEach((d) => {
+          const data = d.data()
+          list.push({
+            id: d.id,
+            full_name: (data.full_name as string) ?? null,
+            email: (data.email as string) ?? null,
+            role: (data.role as AppRole) ?? 'user',
+            created_at: (data.created_at as string) ?? '',
+            updated_at: (data.updated_at as string) ?? '',
+          })
+        })
+        list.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+        setProfiles(list)
+      })
+      .catch((err) => {
+        if (mounted) setError(err instanceof Error ? err.message : 'Failed to load profiles')
+      })
+      .finally(() => {
+        if (mounted) setLoading(false)
       })
     return () => { mounted = false }
   }, [isAdmin])
@@ -38,23 +52,24 @@ export default function Admin() {
   async function saveRole(profileId: string, newRole: AppRole) {
     setSavingId(profileId)
     setError(null)
-    const { error: err } = await supabase
-      .from('profiles')
-      .update({ role: newRole, updated_at: new Date().toISOString() })
-      .eq('id', profileId)
-    setSavingId(null)
-    if (err) {
-      setError(err.message)
-      return
+    try {
+      await updateDoc(doc(db, PROFILES_COLLECTION, profileId), {
+        role: newRole,
+        updated_at: new Date().toISOString(),
+      })
+      setPendingRole((prev) => {
+        const next = { ...prev }
+        delete next[profileId]
+        return next
+      })
+      setProfiles((prev) =>
+        prev.map((p) => (p.id === profileId ? { ...p, role: newRole } : p))
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save role')
+    } finally {
+      setSavingId(null)
     }
-    setPendingRole((prev) => {
-      const next = { ...prev }
-      delete next[profileId]
-      return next
-    })
-    setProfiles((prev) =>
-      prev.map((p) => (p.id === profileId ? { ...p, role: newRole } : p))
-    )
   }
 
   if (!isAdmin) {
@@ -77,7 +92,7 @@ export default function Admin() {
         <h2 className={adminStyles.sectionTitle}>Manage user roles</h2>
         <p className={adminStyles.sectionDesc}>
           Change a user&apos;s role to <strong>user</strong>, <strong>inspector</strong>, or <strong>admin</strong>.
-          Only the first admin needs to be set via Supabase; after that you can use this table.
+          Set the first admin in Firebase Console (Firestore: profiles → your uid → role: &quot;admin&quot;); after that you can use this table.
         </p>
         {error && <div className={adminStyles.error}>{error}</div>}
         {loading ? (

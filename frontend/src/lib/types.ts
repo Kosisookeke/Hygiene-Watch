@@ -1,4 +1,4 @@
-import type { User } from '@supabase/supabase-js'
+import type { User } from 'firebase/auth'
 
 export type AppRole = 'user' | 'inspector' | 'admin'
 

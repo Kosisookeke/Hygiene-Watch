@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { auth } from '../lib/firebase'
 import LogoIcon from '../components/LogoIcon'
 import GoogleSignInButton from '../components/GoogleSignInButton'
 import { IconEnvelope, IconLock, IconEye, IconEyeOff } from '../components/AuthIcons'
-import { supabase } from '../lib/supabase'
 import styles from './Auth.module.css'
 
 export default function LogIn() {
@@ -20,25 +21,29 @@ export default function LogIn() {
     const password = (form.elements.namedItem('password') as HTMLInputElement).value
 
     setLoading(true)
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-    setLoading(false)
-
-    if (signInError) {
-      setError(signInError.message)
-      return
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+      navigate('/', { replace:  true })
+    } catch (err: unknown) {
+      const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Sign in failed.'
+      setError(message)
+    } finally {
+      setLoading(false)
     }
-    navigate('/', { replace: true })
   }
 
   const handleGoogleSignIn = async () => {
     setError(null)
     setLoading(true)
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/` },
-    })
-    setLoading(false)
-    if (oauthError) setError(oauthError.message)
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider())
+      navigate('/', { replace: true })
+    } catch (err: unknown) {
+      const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Google sign in failed.'
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

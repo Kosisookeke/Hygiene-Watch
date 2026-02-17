@@ -129,7 +129,7 @@ export default function Home() {
               { title: 'Reminders', free: true },
               { title: 'Reports', free: true },
               { title: 'Resources', free: true },
-            ].map((f, i) => (
+            ].map((f) => (
               <article key={f.title} className={styles.gridCard}>
                 <div className={styles.gridCardImage}>
                   <img src={`https://picsum.photos/seed/${f.title.replace(/\s+/g, '-').toLowerCase()}/300/225`} alt={f.title} />
@@ -154,7 +154,7 @@ export default function Home() {
               { label: 'GUIDES', title: 'How to Build a Daily Hygiene Routine' },
               { label: 'TIPS', title: 'Handwashing Best Practices for Families' },
               { label: 'TUTORIAL', title: 'Setting Up Your First Hygiene Reminders' },
-            ].map((a, i) => (
+            ].map((a) => (
               <article key={a.title} className={styles.articleCard}>
                 <div className={styles.articleImage}>
                   <img src={`https://picsum.photos/seed/${a.title.replace(/\s+/g, '-').toLowerCase().replace(/[^a-z0-9-]/g, '')}/400/250`} alt="" />

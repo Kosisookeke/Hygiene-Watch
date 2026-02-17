@@ -56,7 +56,7 @@ export default function SignUp() {
     setLoading(true)
     try {
       await signInWithPopup(auth, new GoogleAuthProvider())
-      navigate('/', { replace: true })
+      navigate('/dashboard', { replace: true })
     } catch (err: unknown) {
       const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Google sign up failed.'
       setError(message)

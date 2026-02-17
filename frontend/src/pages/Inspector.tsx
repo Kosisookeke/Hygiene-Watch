@@ -2,7 +2,7 @@ import { useAuth } from '../contexts/AuthContext'
 import styles from './Dashboard.module.css'
 
 export default function Inspector() {
-  const { profile, role } = useAuth()
+  const { role } = useAuth()
   const canAccess = role === 'inspector' || role === 'admin'
 
   if (!canAccess) {

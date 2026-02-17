@@ -16,11 +16,15 @@ export default function Header() {
         <div className={styles.navAndActions}>
           <nav className={styles.nav}>
             <Link to="/" className={styles.navLink}>Home</Link>
+            <Link to="/tips" className={styles.navLink}>Hygiene Tips</Link>
             <a href="/#about" className={styles.navLink}>About Us</a>
             <a href="/#contact" className={styles.navLink}>Contact Us</a>
             {user && (
               <>
                 <Link to="/dashboard" className={styles.navLink}>Dashboard</Link>
+                <Link to="/report" className={styles.navLink}>Report Issue</Link>
+                <Link to="/my-logs" className={styles.navLink}>My Logs</Link>
+                <Link to="/profile" className={styles.navLink}>Profile</Link>
                 {(role === 'inspector' || role === 'admin') && (
                   <Link to="/inspector" className={styles.navLink}>Inspector</Link>
                 )}

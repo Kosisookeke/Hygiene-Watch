@@ -4,7 +4,7 @@ import {
   signOut as firebaseSignOut,
   type User,
 } from 'firebase/auth'
-import { doc, onSnapshot, setDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { auth, db, hasFirebaseConfig } from '../lib/firebase'
 import type { Profile, AppRole } from '../lib/types'
 
@@ -31,6 +31,10 @@ function profileFromDoc(id: string, data: Record<string, unknown> | undefined): 
     role: (data.role as AppRole) ?? DEFAULT_ROLE,
     created_at: (data.created_at as string) ?? '',
     updated_at: (data.updated_at as string) ?? '',
+    location: (data.location as string) ?? null,
+    phone: (data.phone as string) ?? null,
+    about_me: (data.about_me as string) ?? null,
+    avatar_url: (data.avatar_url as string) ?? null,
   }
 }
 
@@ -56,13 +60,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false)
         return
       }
+      // Show page immediately with user; profile loads via getDoc (avoids onSnapshot crash)
+      setLoading(false)
       const profileRef = doc(db, PROFILES_COLLECTION, firebaseUser.uid)
-      profileUnsub = onSnapshot(
-        profileRef,
-        async (snap) => {
+      let cancelled = false
+      const fetchProfile = async () => {
+        if (cancelled) return
+        try {
+          const snap = await getDoc(profileRef)
+          if (cancelled) return
           if (snap.exists()) {
-            const data = snap.data()
-            setProfile(profileFromDoc(firebaseUser.uid, data))
+            setProfile(profileFromDoc(firebaseUser.uid, snap.data()))
           } else {
             const now = new Date().toISOString()
             const newProfile = {
@@ -71,17 +79,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               role: DEFAULT_ROLE,
               created_at: now,
               updated_at: now,
+              location: null,
+              phone: null,
+              about_me: null,
+              avatar_url: null,
             }
-            await setDoc(profileRef, newProfile)
-            setProfile({ id: firebaseUser.uid, ...newProfile })
+            try {
+              await setDoc(profileRef, newProfile)
+            } catch {
+              // may already exist
+            }
+            if (!cancelled) setProfile({ id: firebaseUser.uid, ...newProfile })
           }
-          setLoading(false)
-        },
-        () => {
-          setProfile(null)
-          setLoading(false)
+        } catch {
+          if (!cancelled) setProfile(null)
         }
-      )
+      }
+      fetchProfile()
+      const timer = setInterval(fetchProfile, 30_000)
+      profileUnsub = () => {
+        cancelled = true
+        clearInterval(timer)
+      }
     })
     return () => {
       if (profileUnsub) profileUnsub()

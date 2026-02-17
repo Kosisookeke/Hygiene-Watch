@@ -23,7 +23,7 @@ export default function LogIn() {
     setLoading(true)
     try {
       await signInWithEmailAndPassword(auth, email, password)
-      navigate('/', { replace:  true })
+      navigate('/dashboard', { replace: true })
     } catch (err: unknown) {
       const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Sign in failed.'
       setError(message)
@@ -37,7 +37,7 @@ export default function LogIn() {
     setLoading(true)
     try {
       await signInWithPopup(auth, new GoogleAuthProvider())
-      navigate('/', { replace: true })
+      navigate('/dashboard', { replace: true })
     } catch (err: unknown) {
       const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Google sign in failed.'
       setError(message)

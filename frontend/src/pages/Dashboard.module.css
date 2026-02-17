@@ -1,6 +1,7 @@
 .page {
-  padding: 2rem 1.5rem;
-  max-width: 720px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -51,5 +52,151 @@
 }
 
 .link:hover {
+  text-decoration: underline;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  align-items: stretch;
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section {
+  background: var(--color-bg-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.section:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-light);
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+}
+
+.icon svg {
+  color: var(--color-primary);
+}
+
+.scrollArea {
+  overflow-y: auto;
+  max-height: 320px;
+  flex: 1;
+  min-height: 0;
+}
+
+.empty {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  padding: 1rem 0;
+}
+
+.activityItem {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.2s;
+}
+
+.activityItem:hover {
+  background: rgba(15, 81, 50, 0.04);
+  margin: 0 -0.5rem;
+  padding: 0.75rem 0.5rem;
+}
+
+.activityItem:last-child {
+  border-bottom: none;
+}
+
+.activityDesc {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.activityTime {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.logCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.2s;
+}
+
+.logCard:hover {
+  background: rgba(15, 81, 50, 0.04);
+  margin: 0 -0.5rem;
+  padding: 0.75rem 0.5rem;
+}
+
+.logCard:last-child {
+  border-bottom: none;
+}
+
+.logIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.logIcon svg {
+  color: var(--color-primary);
+}
+
+.logContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.logTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  color: var(--color-text);
+}
+
+.logDate {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.viewLink {
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.viewLink:hover {
   text-decoration: underline;
 }

@@ -1,7 +1,10 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 
 interface Props {
   children: ReactNode
+  /** Optional fallback UI. If not provided, uses default error UI with back links. */
+  fallback?: ReactNode
 }
 
 interface State {
@@ -22,6 +25,7 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError && this.state.error) {
+      if (this.props.fallback) return this.props.fallback
       return (
         <div style={{
           padding: '2rem',
@@ -30,7 +34,7 @@ export default class ErrorBoundary extends Component<Props, State> {
           margin: '2rem auto',
         }}>
           <h1 style={{ color: '#c00' }}>Something went wrong</h1>
-          <p>The app crashed. Check the browser console (F12) for details.</p>
+          <p>This page encountered an error. You can try again or go back.</p>
           <pre style={{
             background: '#f5f5f5',
             padding: '1rem',
@@ -39,13 +43,17 @@ export default class ErrorBoundary extends Component<Props, State> {
           }}>
             {this.state.error.message}
           </pre>
-          <button
-            type="button"
-            onClick={() => this.setState({ hasError: false, error: null })}
-            style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}
-          >
-            Try again
-          </button>
+          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => this.setState({ hasError: false, error: null })}
+              style={{ padding: '0.5rem 1rem' }}
+            >
+              Try again
+            </button>
+            <Link to="/dashboard" style={{ padding: '0.5rem 1rem' }}>Dashboard</Link>
+            <Link to="/" style={{ padding: '0.5rem 1rem' }}>Home</Link>
+          </div>
         </div>
       )
     }

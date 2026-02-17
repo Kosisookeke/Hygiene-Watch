@@ -60,6 +60,20 @@
   gap: 0.75rem;
 }
 
+.themeBtn {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-muted);
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.themeBtn:hover {
+  background: var(--color-border);
+}
+
 .btnOutline {
   padding: 0.5rem 1.25rem;
   border: 1px solid var(--color-primary);

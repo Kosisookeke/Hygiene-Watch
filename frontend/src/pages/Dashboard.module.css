@@ -35,6 +35,12 @@
   max-width: 640px;
 }
 
+/* Chart section - big, transparent */
+.chartSection {
+  margin-bottom: 32px;
+  background: transparent;
+}
+
 /* Cards grid - 3 columns on large screens, responsive */
 .cardsGrid {
   display: grid;
@@ -192,6 +198,12 @@
   font-size: 0.9rem;
   color: #1a1a1a;
   line-height: 1.3;
+}
+
+.activityBy {
+  font-size: 0.85rem;
+  color: #6b6b6b;
+  font-weight: 400;
 }
 
 .activityTime {

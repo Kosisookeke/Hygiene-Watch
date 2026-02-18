@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { subscribeTips } from '../lib/firestore'
+import Loader from '../components/Loader'
 import type { Tip, TipCategory } from '../lib/types'
 import styles from './HygieneTips.module.css'
 
@@ -27,11 +28,16 @@ function formatDate(s: string): string {
 
 export default function HygieneTips() {
   const [tips, setTips] = useState<Tip[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState<TipCategory | ''>('')
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest')
 
   useEffect(() => {
-    const unsub = subscribeTips(setTips)
+    const unsub = subscribeTips((data) => {
+      setTips(data)
+      setLoading(false)
+    })
     return () => unsub?.()
   }, [])
 
@@ -46,8 +52,17 @@ export default function HygieneTips() {
           t.description.toLowerCase().includes(q)
       )
     }
-    return list
-  }, [tips, category, search])
+    const sorted = [...list].sort((a, b) => {
+      const ta = new Date(a.createdAt).getTime()
+      const tb = new Date(b.createdAt).getTime()
+      return sortOrder === 'newest' ? tb - ta : ta - tb
+    })
+    return sorted
+  }, [tips, category, search, sortOrder])
+
+  if (loading) {
+    return <Loader />
+  }
 
   return (
     <div className={styles.page}>
@@ -76,15 +91,20 @@ export default function HygieneTips() {
             <option key={c} value={c}>{c}</option>
           ))}
         </select>
+        <select
+          value={sortOrder}
+          onChange={(e) => setSortOrder((e.target.value as 'newest' | 'oldest'))}
+          className={styles.select}
+          aria-label="Sort order"
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+        </select>
       </div>
 
       <div className={styles.grid}>
         {filtered.length === 0 ? (
-          <p className={styles.empty}>
-            {tips.length === 0
-              ? 'Loading tips…'
-              : 'No tips match your search or filter.'}
-          </p>
+          <p className={styles.empty}>No tips match your search or filter.</p>
         ) : (
           filtered.map((tip) => (
             <article key={tip.id} className={styles.card}>

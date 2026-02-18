@@ -1,0 +1,8 @@
+/* Chart wrapper - big, transparent */
+.wrap {
+  width: 100%;
+  min-height: 360px;
+  height: 40vh;
+  background: transparent;
+  padding: 0;
+}

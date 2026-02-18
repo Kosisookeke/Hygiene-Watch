@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import Loader from '../components/Loader'
 import { doc, setDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { subscribeReportsByUser, subscribeTipsByUser } from '../lib/firestore'
@@ -41,6 +42,7 @@ export default function Profile() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [refreshingMetrics, setRefreshingMetrics] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -127,6 +129,20 @@ export default function Profile() {
         </p>
       </div>
     )
+  }
+
+  if (refreshingMetrics) {
+    return <Loader />
+  }
+
+  const handleRefreshMetrics = async () => {
+    setRefreshingMetrics(true)
+    try {
+      await refreshProfile()
+      await new Promise((r) => setTimeout(r, 500))
+    } finally {
+      setRefreshingMetrics(false)
+    }
   }
 
   return (
@@ -287,7 +303,7 @@ export default function Profile() {
           <button
             type="button"
             className={styles.actionBtn}
-            onClick={() => window.location.reload()}
+            onClick={handleRefreshMetrics}
           >
             <IconRefreshCw /> Refresh Metrics
           </button>

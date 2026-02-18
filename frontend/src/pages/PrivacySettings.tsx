@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { useAuth } from '../contexts/AuthContext'
+import Loader from '../components/Loader'
 import { db } from '../lib/firebase'
 import styles from './PrivacySettings.module.css'
 
@@ -103,11 +104,7 @@ export default function PrivacySettings() {
   }
 
   if (loading) {
-    return (
-      <div className={styles.page}>
-        <p className={styles.subtitle}>Loading…</p>
-      </div>
-    )
+    return <Loader />
   }
 
   return (

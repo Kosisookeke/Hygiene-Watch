@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { subscribeRecentActivityByUser } from '../lib/firestore'
+import { subscribeRecentActivity } from '../lib/firestore'
 import { IconMapPin, IconLightbulb, IconFileText, IconUser, IconShield } from '../components/Icons'
 import type { Report, Tip } from '../lib/types'
 import styles from './Dashboard.module.css'
@@ -27,13 +27,12 @@ type ActivityItem = (Report | Tip) & { _type: 'report' | 'tip' }
 export default function Dashboard() {
   const { user, profile, role } = useAuth()
   const [activity, setActivity] = useState<ActivityItem[]>([])
+  const hasReceived = useRef(false)
 
   useEffect(() => {
-    if (!user?.uid) {
-      setActivity([])
-      return
-    }
-    const unsub = subscribeRecentActivityByUser(user.uid, (items) => {
+    hasReceived.current = false
+    const unsub = subscribeRecentActivity((items) => {
+      if (!hasReceived.current) hasReceived.current = true
       setActivity(
         items.map((item) => ({
           ...item,
@@ -42,7 +41,7 @@ export default function Dashboard() {
       )
     })
     return () => unsub?.()
-  }, [user?.uid])
+  }, [])
 
   const displayName = profile?.full_name || user?.displayName || user?.email || 'User'
 
@@ -128,14 +127,10 @@ export default function Dashboard() {
         <article className={`${styles.featureCard} ${styles.activityCard}`}>
           <h3 className={styles.cardTitle}>Recent Activity</h3>
           <div className={styles.activityList}>
-            {!user ? (
-              <p className={styles.activityEmpty}>
-                <Link to="/login">Log in</Link> to see recent activity.
-              </p>
-            ) : activity.length === 0 ? (
+            {activity.length === 0 ? (
               <p className={styles.activityEmpty}>No recent activity.</p>
             ) : (
-              activity.slice(0, 8).map((item) => (
+              activity.slice(0, 10).map((item) => (
                 <div key={`${item._type}-${item.id}`} className={styles.activityRow}>
                   <span className={styles.activityIcon}>
                     {item._type === 'report' ? <IconMapPin /> : <IconLightbulb />}
@@ -143,6 +138,9 @@ export default function Dashboard() {
                   <div className={styles.activityContent}>
                     <span className={styles.activityText}>
                       {item._type === 'report' ? item.title : (item as Tip).title}
+                      <span className={styles.activityBy}>
+                        {'submittedBy' in item ? ` by ${item.submittedBy}` : ` by ${item.author}`}
+                      </span>
                     </span>
                     <span className={styles.activityTime}>{relativeTime(item.createdAt)}</span>
                   </div>

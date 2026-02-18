@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import Home from '../pages/Home'
+import Loader from './Loader'
 
 /**
  * For logged-in users, redirect to dashboard (home is in the dashboard).
@@ -8,7 +9,7 @@ import Home from '../pages/Home'
  */
 export default function HomeOrDashboard() {
   const { user, loading } = useAuth()
-  if (loading) return null
+  if (loading) return <Loader />
   if (user) return <Navigate to="/dashboard" replace />
   return <Home />
 }

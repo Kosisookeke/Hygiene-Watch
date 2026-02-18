@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { getReport } from '../lib/firestore'
+import Loader from '../components/Loader'
 import type { Report } from '../lib/types'
 import styles from './ReportView.module.css'
 
@@ -48,11 +49,7 @@ export default function ReportView() {
   }
 
   if (loading && !report) {
-    return (
-      <div className={styles.page}>
-        <p className={styles.loading}>Loading report…</p>
-      </div>
-    )
+    return <Loader />
   }
 
   if (error || !report) {

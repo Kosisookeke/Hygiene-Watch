@@ -8,6 +8,7 @@ import {
 } from 'firebase/auth'
 import { useAuth } from '../contexts/AuthContext'
 import { db } from '../lib/firebase'
+import Loader from '../components/Loader'
 import { IconUser, IconLock } from '../components/Icons'
 import styles from './AccountSettings.module.css'
 
@@ -91,6 +92,10 @@ export default function AccountSettings() {
         <p className={styles.subtitle}>Log in to manage your account.</p>
       </div>
     )
+  }
+
+  if (user && profile === null) {
+    return <Loader />
   }
 
   return (

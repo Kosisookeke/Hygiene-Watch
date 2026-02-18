@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import Loader from '../components/Loader'
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import type { AppRole, Profile } from '../lib/types'
@@ -96,7 +97,7 @@ export default function Admin() {
         </p>
         {error && <div className={adminStyles.error}>{error}</div>}
         {loading ? (
-          <p className={adminStyles.meta}>Loading profiles…</p>
+          <Loader />
         ) : (
           <div className={adminStyles.tableWrap}>
             <table className={adminStyles.table}>

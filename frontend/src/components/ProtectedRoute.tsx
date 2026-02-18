@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import Loader from './Loader'
 import type { AppRole } from '../lib/types'
 
 interface ProtectedRouteProps {
@@ -14,9 +15,7 @@ export default function ProtectedRoute({ children, requiredRole = 'user' }: Prot
   const location = useLocation()
 
   if (loading) {
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>Loading…</div>
-    )
+    return <Loader />
   }
 
   if (!user) {

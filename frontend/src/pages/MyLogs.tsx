@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { subscribeReportsByUser, subscribeTipsByUser } from '../lib/firestore'
+import Loader from '../components/Loader'
 import type { Report, Tip } from '../lib/types'
 import styles from './MyLogs.module.css'
 
@@ -22,16 +23,30 @@ export default function MyLogs() {
   const { user } = useAuth()
   const [reports, setReports] = useState<Report[]>([])
   const [tips, setTips] = useState<Tip[]>([])
+  const [loading, setLoading] = useState(true)
+  const readyRef = useRef({ reports: false, tips: false })
 
   useEffect(() => {
     if (!user) return
-    const unsubReports = subscribeReportsByUser(user.uid, setReports)
-    const unsubTips = subscribeTipsByUser(user.uid, setTips)
+    readyRef.current = { reports: false, tips: false }
+    setLoading(true)
+    const unsubReports = subscribeReportsByUser(user.uid, (r) => {
+      setReports(r)
+      readyRef.current.reports = true
+      if (readyRef.current.tips) setLoading(false)
+    })
+    const unsubTips = subscribeTipsByUser(user.uid, (t) => {
+      setTips(t)
+      readyRef.current.tips = true
+      if (readyRef.current.reports) setLoading(false)
+    })
     return () => {
       unsubReports?.()
       unsubTips?.()
     }
   }, [user?.uid])
+
+  if (user && loading) return <Loader />
 
   const reportItems = reports.map((r) => ({
     type: 'report' as const,

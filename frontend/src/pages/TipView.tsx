@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Loader from '../components/Loader'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
@@ -131,11 +132,7 @@ export default function TipView() {
   }
 
   if (loading && !tip) {
-    return (
-      <div className={styles.page}>
-        <p className={styles.loading}>Loading tip…</p>
-      </div>
-    )
+    return <Loader />
   }
 
   if (error || !tip) {

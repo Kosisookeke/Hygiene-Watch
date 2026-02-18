@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { useLocation } from 'react-router-dom'
 import AppSidebar from './AppSidebar'
 import { useAuth } from '../contexts/AuthContext'
-import { IconArrowRight } from './Icons'
+import { IconLogOut } from './Icons'
 import styles from './DashboardLayout.module.css'
 
 const PAGE_TITLES: Record<string, string> = {
@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               className={styles.signOutBtn}
               aria-label="Sign out"
             >
-              <IconArrowRight />
+              <IconLogOut />
             </button>
           </div>
         </header>

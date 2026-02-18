@@ -6,7 +6,7 @@ import DashboardLayout from './DashboardLayout'
 import { useAuth } from '../contexts/AuthContext'
 import styles from './Layout.module.css'
 
-const DASHBOARD_PATHS = ['/dashboard', '/report', '/tips', '/my-logs', '/profile', '/inspector', '/admin']
+const DASHBOARD_PATHS = ['/dashboard', '/report', '/reports', '/tips', '/my-logs', '/profile', '/inspector', '/admin']
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { user } = useAuth()

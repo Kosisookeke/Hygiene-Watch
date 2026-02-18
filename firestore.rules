@@ -29,8 +29,13 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow update, delete: if false;
     }
-    // Email subscriptions (contact form)
+    // Email subscriptions (Learn More form)
     match /email_subscriptions/{docId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+    // Contact form submissions
+    match /contact_submissions/{docId} {
       allow create: if true;
       allow read, update, delete: if false;
     }

@@ -9,10 +9,37 @@ export default function Home() {
   const [sent, setSent] = useState(false)
   const [learnMoreEmail, setLearnMoreEmail] = useState('')
   const [isSubscribing, setIsSubscribing] = useState(false)
+  const [contactName, setContactName] = useState('')
+  const [contactEmail, setContactEmail] = useState('')
+  const [contactSubject, setContactSubject] = useState('')
+  const [contactMessage, setContactMessage] = useState('')
 
-  const handleContactSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setSent(true)
+    const name = contactName.trim()
+    const email = contactEmail.trim()
+    const subject = contactSubject.trim()
+    const message = contactMessage.trim()
+    if (!name || !email || !message) return
+
+    try {
+      await addDoc(collection(db, 'contact_submissions'), {
+        name,
+        email,
+        subject: subject || null,
+        message,
+        created_at: new Date().toISOString(),
+      })
+      setContactName('')
+      setContactEmail('')
+      setContactSubject('')
+      setContactMessage('')
+      setSent(true)
+      setTimeout(() => setSent(false), 2000)
+    } catch (err) {
+      console.error('Failed to save contact message', err)
+      window.alert(`Sorry, something went wrong: ${err instanceof Error ? err.message : 'Failed to send message'}`)
+    }
   }
 
   const handleLearnMoreSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -188,6 +215,8 @@ export default function Home() {
                       type="text"
                       placeholder="John Doe"
                       className={contactStyles.input}
+                      value={contactName}
+                      onChange={(e) => setContactName(e.target.value)}
                       required
                     />
                   </div>
@@ -199,6 +228,8 @@ export default function Home() {
                       type="email"
                       placeholder="john@example.com"
                       className={contactStyles.input}
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
                       required
                     />
                   </div>
@@ -211,6 +242,8 @@ export default function Home() {
                     type="text"
                     placeholder="What is this regarding?"
                     className={contactStyles.input}
+                    value={contactSubject}
+                    onChange={(e) => setContactSubject(e.target.value)}
                   />
                 </div>
                 <div className={contactStyles.rowFull}>
@@ -221,6 +254,8 @@ export default function Home() {
                     rows={5}
                     placeholder="Tell us about your question, concern, or feedback..."
                     className={contactStyles.textarea}
+                    value={contactMessage}
+                    onChange={(e) => setContactMessage(e.target.value)}
                     required
                   />
                 </div>

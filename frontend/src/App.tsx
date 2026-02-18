@@ -10,6 +10,8 @@ import ReportIssue from './pages/ReportIssue'
 import ReportView from './pages/ReportView'
 import MyLogs from './pages/MyLogs'
 import Profile from './pages/Profile'
+import AccountSettings from './pages/AccountSettings'
+import PrivacySettings from './pages/PrivacySettings'
 import Inspector from './pages/Inspector'
 import Admin from './pages/Admin'
 import SignUp from './pages/SignUp'
@@ -34,6 +36,8 @@ function App() {
               <Route path="/reports/:id" element={<ReportView />} />
               <Route path="/my-logs" element={<ProtectedRoute><MyLogs /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/profile/account-settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
+              <Route path="/profile/privacy-settings" element={<ProtectedRoute><PrivacySettings /></ProtectedRoute>} />
               <Route path="/inspector" element={<ProtectedRoute requiredRole="inspector"><Inspector /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
             </Routes>

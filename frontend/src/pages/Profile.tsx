@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { doc, updateDoc } from 'firebase/firestore'
+import { doc, setDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { subscribeReportsByUser, subscribeTipsByUser } from '../lib/firestore'
 import { uploadImage, hasCloudinaryConfig } from '../lib/cloudinary'
@@ -30,7 +30,7 @@ function formatMemberSince(createdAt: string): string {
 }
 
 export default function Profile() {
-  const { user, profile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
   const [reportsCount, setReportsCount] = useState(0)
   const [tipsCount, setTipsCount] = useState(0)
   const [editing, setEditing] = useState(false)
@@ -78,10 +78,11 @@ export default function Profile() {
     setUploadingPhoto(true)
     try {
       const url = await uploadImage(file)
-      await updateDoc(doc(db, PROFILES_COLLECTION, user.uid), {
+      await setDoc(doc(db, PROFILES_COLLECTION, user.uid), {
         avatar_url: url,
         updated_at: new Date().toISOString(),
-      })
+      }, { merge: true })
+      await refreshProfile()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to upload photo')
     } finally {
@@ -97,14 +98,17 @@ export default function Profile() {
     setSaving(true)
     setSaved(false)
     try {
-      await updateDoc(doc(db, PROFILES_COLLECTION, user.uid), {
+      const profileRef = doc(db, PROFILES_COLLECTION, user.uid)
+      const payload = {
         full_name: fullName.trim() || null,
         location: location.trim() || null,
         phone: phone.trim() || null,
         about_me: aboutMe.trim() || null,
         email: user.email ?? null,
         updated_at: new Date().toISOString(),
-      })
+      }
+      await setDoc(profileRef, payload, { merge: true })
+      await refreshProfile()
       setSaved(true)
       setEditing(false)
     } catch (err) {
@@ -274,12 +278,12 @@ export default function Profile() {
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>Quick Actions</h3>
         <div className={styles.quickActions}>
-          <button type="button" className={styles.actionBtn}>
+          <Link to="/profile/privacy-settings" className={styles.actionBtn}>
             <IconShield /> Privacy Settings
-          </button>
-          <button type="button" className={styles.actionBtn}>
+          </Link>
+          <Link to="/profile/account-settings" className={styles.actionBtn}>
             <IconSettings /> Account Settings
-          </button>
+          </Link>
           <button
             type="button"
             className={styles.actionBtn}

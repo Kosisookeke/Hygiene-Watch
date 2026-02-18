@@ -174,6 +174,7 @@ export function subscribeReportsByUser(
   }
 }
 
+/** Recent activity (community-wide): reports + approved tips, sorted by createdAt */
 export function subscribeRecentActivity(callback: (items: Array<Report | Tip>) => void): Unsubscribe | null {
   if (!hasFirebaseConfig || !db) return null
   let cancelled = false
@@ -184,13 +185,55 @@ export function subscribeRecentActivity(callback: (items: Array<Report | Tip>) =
         getDocs(query(
           collection(db, REPORTS_COLLECTION),
           orderBy('createdAt', 'desc'),
-          limit(10)
+          limit(15)
         )),
         getDocs(query(
           collection(db, TIPS_COLLECTION),
           where('approved', '==', true),
           orderBy('createdAt', 'desc'),
-          limit(10)
+          limit(15)
+        )),
+      ])
+      const reports = reportsSnap.docs.map(docToReport)
+      const tips = tipsSnap.docs.map(docToTip)
+      const merged = [...reports, ...tips].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+      if (!cancelled) callback(merged.slice(0, 15))
+    } catch {
+      if (!cancelled) callback([])
+    }
+  }
+  run()
+  const timer = setInterval(run, POLL_MS)
+  return () => {
+    cancelled = true
+    clearInterval(timer)
+  }
+}
+
+/** Recent activity for a specific user: their reports + tips, sorted by createdAt */
+export function subscribeRecentActivityByUser(
+  userId: string,
+  callback: (items: Array<Report | Tip>) => void
+): Unsubscribe | null {
+  if (!hasFirebaseConfig || !db) return null
+  let cancelled = false
+  const run = async () => {
+    if (cancelled) return
+    try {
+      const [reportsSnap, tipsSnap] = await Promise.all([
+        getDocs(query(
+          collection(db, REPORTS_COLLECTION),
+          where('submittedById', '==', userId),
+          orderBy('createdAt', 'desc'),
+          limit(25)
+        )),
+        getDocs(query(
+          collection(db, TIPS_COLLECTION),
+          where('authorId', '==', userId),
+          orderBy('createdAt', 'desc'),
+          limit(25)
         )),
       ])
       const reports = reportsSnap.docs.map(docToReport)

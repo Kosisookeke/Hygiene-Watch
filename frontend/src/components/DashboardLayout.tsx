@@ -11,6 +11,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/tips': 'Hygiene Tips',
   '/my-logs': 'My Logs',
   '/profile': 'Profile',
+  '/profile/account-settings': 'Settings',
+  '/profile/privacy-settings': 'Privacy Settings',
   '/inspector': 'Inspector',
   '/admin': 'Admin',
 }

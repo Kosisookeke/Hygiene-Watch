@@ -46,8 +46,7 @@
 }
 
 .navLink:hover {
-  background: var(--color-bg-muted);
-  color: var(--color-primary);
+  background: transparent;
 }
 
 .navLinkActive {
@@ -57,7 +56,7 @@
 }
 
 .navLinkActive:hover {
-  background: rgba(15, 81, 50, 0.08);
+  background: transparent;
 }
 
 .navIcon {
@@ -70,7 +69,6 @@
   color: var(--color-text-muted);
 }
 
-.navLink:hover .navIcon svg,
 .navLinkActive .navIcon svg {
   color: var(--color-primary);
 }

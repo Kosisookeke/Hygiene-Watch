@@ -1,0 +1,214 @@
+/* Page */
+.page {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 1.75rem;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #6b6b6b;
+  margin: 0;
+}
+
+.errorBanner {
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #b91c1c;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Section cards - white, rounded, shadow + PAGE LIFT HOVER EFFECT */
+.section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.section:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 1.25rem;
+}
+
+.sectionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a4a4a;
+}
+
+.sectionIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+/* Phone field: single column, fits under Display Name, same vertical spacing as password fields */
+.fieldPhone {
+  grid-column: 1;
+}
+
+/* Password: Row 1 = Current | New, Row 2 = Confirm (full width) */
+.passwordGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+/* Confirm under Current Password, same width (left column) */
+.fieldConfirm {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fieldConfirm label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a4a4a;
+}
+
+.fieldConfirm input {
+  padding: 0.65rem 0.9rem;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #ffffff;
+}
+
+.fieldConfirm input::placeholder {
+  color: #9ca3af;
+}
+
+@media (max-width: 600px) {
+  .passwordGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fieldConfirm {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fieldPhone {
+    grid-column: 1;
+  }
+}
+
+.field,
+.fieldPhone {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field label,
+.fieldPhone label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a4a4a;
+}
+
+.field input,
+.fieldPhone input {
+  padding: 0.65rem 0.9rem;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #ffffff;
+}
+
+.field input:disabled,
+.fieldPhone input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  color: #6b6b6b;
+}
+
+.field input::placeholder,
+.fieldPhone input::placeholder {
+  color: #9ca3af;
+}
+
+.helper {
+  font-size: 0.8rem;
+  color: #8a8a8a;
+  margin-top: 0.2rem;
+}
+
+.success {
+  font-size: 0.9rem;
+  color: #0f5132;
+  margin: 0;
+}
+
+/* Action buttons - Save Profile, Change Password: small, left-aligned, white, dark green */
+.btnAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1.5px solid #166534;
+  background: #ffffff;
+  color: #166534;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btnAction:hover:not(:disabled) {
+  background: #052e16;
+  color: #ffffff;
+  border-color: #052e16;
+}
+
+.btnAction:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

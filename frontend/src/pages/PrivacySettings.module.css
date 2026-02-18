@@ -1,0 +1,148 @@
+/* Page */
+.page {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #6b6b6b;
+  margin: 0;
+}
+
+/* Sections - card-like, white, rounded, shadow, hover lift */
+.section {
+  margin-bottom: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.section:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 1.25rem;
+}
+
+.preferenceList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.preferenceItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.preferenceItem:last-child {
+  border-bottom: none;
+}
+
+.preferenceContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.preferenceTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.preferenceDesc {
+  font-size: 0.875rem;
+  color: #6b6b6b;
+  line-height: 1.4;
+}
+
+/* Toggle switch */
+.toggle {
+  flex-shrink: 0;
+  width: 48px;
+  height: 26px;
+  border-radius: 13px;
+  background: #d1d5db;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.toggleOn {
+  background: var(--color-primary);
+}
+
+.toggleThumb {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+}
+
+.toggleOn .toggleThumb {
+  transform: translateX(22px);
+}
+
+/* Footer - Save button aligned right */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.saved {
+  font-size: 0.9rem;
+  color: var(--color-primary);
+}
+
+.saveBtn {
+  padding: 0.75rem 1.5rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.saveBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

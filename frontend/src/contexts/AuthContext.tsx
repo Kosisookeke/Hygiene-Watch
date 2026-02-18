@@ -16,6 +16,7 @@ interface AuthContextValue {
   role: AppRole
   loading: boolean
   signOut: () => Promise<void>
+  refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -114,6 +115,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null)
   }, [])
 
+  const refreshProfile = useCallback(async () => {
+    if (!hasFirebaseConfig || !db || !user) return
+    try {
+      const profileRef = doc(db, PROFILES_COLLECTION, user.uid)
+      const snap = await getDoc(profileRef)
+      if (snap.exists()) {
+        setProfile(profileFromDoc(user.uid, snap.data()))
+      }
+    } catch {
+      // Keep existing profile on error
+    }
+  }, [user])
+
   const role: AppRole = profile?.role ?? DEFAULT_ROLE
 
   const value: AuthContextValue = {
@@ -122,6 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     role,
     loading,
     signOut,
+    refreshProfile,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

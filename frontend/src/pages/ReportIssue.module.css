@@ -274,10 +274,11 @@
   border-radius: var(--radius);
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .submitBtn:hover:not(:disabled) {
-  filter: brightness(1.05);
+  background: var(--color-primary-dark);
 }
 
 .submitBtn:disabled {

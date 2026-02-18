@@ -1,202 +1,284 @@
+/* Page container - light grey background like AncestorLens */
 .page {
-  padding: 2rem;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 0;
+  min-height: 100%;
 }
 
-.title {
+/* Welcome section - full width, light beige background, rounded corners, generous padding */
+.welcomeSection {
+  background: #f5f0e8;
+  border-radius: 12px;
+  padding: 28px 32px 32px;
+  margin-bottom: 32px;
+}
+
+.welcomeTagline {
+  font-size: 0.9rem;
+  color: #4a4a4a;
+  margin: 0 0 6px;
+  font-weight: 400;
+}
+
+.welcomeTitle {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--color-text);
-  margin: 0 0 0.25rem;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
 }
 
-.subtitle {
-  color: var(--color-text-muted);
-  margin: 0 0 1.5rem;
+.welcomeDesc {
+  font-size: 0.95rem;
+  color: #6b6b6b;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 640px;
 }
 
-.card {
-  background: var(--color-bg-muted);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  border: 1px solid var(--color-border);
-}
-
-.meta {
-  margin: 0 0 0.75rem;
-  color: var(--color-text);
-}
-
-.roleBadge {
-  display: inline-block;
-  padding: 0.2rem 0.5rem;
-  background: var(--color-primary);
-  color: white;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  text-transform: capitalize;
-}
-
-.links {
-  margin-top: 1.25rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.link {
-  color: var(--color-primary);
-  font-weight: 600;
-}
-
-.link:hover {
-  text-decoration: underline;
-}
-
-.dashboard {
+/* Cards grid - 3 columns on large screens, responsive */
+.cardsGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  align-items: stretch;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }
 
-@media (max-width: 768px) {
-  .dashboard {
-    grid-template-columns: 1fr;
-  }
-}
-
-.section {
-  background: var(--color-bg-muted);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
+.featureCard {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px 26px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  align-items: flex-start;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 
-.section:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-primary-light);
+.featureCard:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
 }
 
-.sectionTitle {
+/* Icon wrapper - circular light grey/beige background */
+.cardIconWrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #f5f0e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  color: #4a4a4a;
+  flex-shrink: 0;
+}
+
+.cardIconWrap svg {
+  width: 24px;
+  height: 24px;
+}
+
+.cardTitle {
   font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0 0 1rem;
-  color: var(--color-text);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+  line-height: 1.3;
 }
 
-.icon {
-  display: flex;
-  align-items: center;
+.cardDesc {
+  font-size: 0.9rem;
+  color: #6b6b6b;
+  margin: 0 0 20px;
+  line-height: 1.5;
+  flex-grow: 1;
 }
 
-.icon svg {
+/* Button styles - transparent with green border, darker green on hover */
+.cardBtnOutline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1.5px solid var(--color-primary);
+  background: transparent;
   color: var(--color-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
-.scrollArea {
+.cardBtnOutline:hover {
+  background: var(--color-primary-dark);
+  color: #fff;
+  border-color: var(--color-primary-dark);
+}
+
+.cardBtnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1.5px solid var(--color-primary);
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.cardBtnPrimary:hover {
+  background: var(--color-primary-dark);
+  color: #fff;
+  border-color: var(--color-primary-dark);
+}
+
+/* Activity card - spans 1 column but has its own layout */
+.activityCard {
+  grid-column: 3;
+  grid-row: 2 / 3;
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  max-height: 280px;
   overflow-y: auto;
-  max-height: 320px;
-  flex: 1;
-  min-height: 0;
 }
 
-.empty {
-  color: var(--color-text-muted);
-  font-size: 0.95rem;
-  padding: 1rem 0;
+.activityRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
 }
 
-.activityItem {
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--color-border);
-  transition: background 0.2s;
-}
-
-.activityItem:hover {
-  background: rgba(15, 81, 50, 0.04);
-  margin: 0 -0.5rem;
-  padding: 0.75rem 0.5rem;
-}
-
-.activityItem:last-child {
+.activityRow:last-child {
   border-bottom: none;
 }
 
-.activityDesc {
-  margin: 0 0 0.25rem;
-  font-size: 0.95rem;
-  color: var(--color-text);
+.activityIcon {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  background: #f5f0e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a4a4a;
+}
+
+.activityIcon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.activityContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.activityText {
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  line-height: 1.3;
 }
 
 .activityTime {
   font-size: 0.8rem;
-  color: var(--color-text-muted);
+  color: #8a8a8a;
 }
 
-.logCard {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--color-border);
-  transition: background 0.2s;
-}
-
-.logCard:hover {
-  background: rgba(15, 81, 50, 0.04);
-  margin: 0 -0.5rem;
-  padding: 0.75rem 0.5rem;
-}
-
-.logCard:last-child {
-  border-bottom: none;
-}
-
-.logIcon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-}
-
-.logIcon svg {
-  color: var(--color-primary);
-}
-
-.logContent {
-  flex: 1;
-  min-width: 0;
-}
-
-.logTitle {
-  font-size: 0.95rem;
+.activityLink {
+  font-size: 0.85rem;
+  color: #b8a067;
   font-weight: 600;
-  margin: 0 0 0.25rem;
-  color: var(--color-text);
-}
-
-.logDate {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-}
-
-.viewLink {
-  color: var(--color-primary);
-  font-weight: 600;
-  font-size: 0.9rem;
+  text-decoration: none;
   flex-shrink: 0;
 }
 
-.viewLink:hover {
+.activityLink:hover {
   text-decoration: underline;
+}
+
+.activityEmpty {
+  font-size: 0.9rem;
+  color: #8a8a8a;
+  margin: 0;
+  padding: 8px 0;
+}
+
+.activityEmpty a {
+  color: #b8a067;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.activityEmpty a:hover {
+  text-decoration: underline;
+}
+
+/* Admin links for inspectors/admins */
+.adminLinks {
+  margin-top: 24px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.adminLink {
+  font-size: 0.9rem;
+  color: #b8a067;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.adminLink:hover {
+  text-decoration: underline;
+}
+
+/* Responsive - 2 columns on medium, 1 on small */
+@media (max-width: 1024px) {
+  .cardsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .activityCard {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .welcomeSection {
+    padding: 20px 20px 24px;
+    margin-bottom: 24px;
+  }
+
+  .welcomeTitle {
+    font-size: 1.5rem;
+  }
+
+  .cardsGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .featureCard {
+    padding: 20px 22px;
+  }
+
+  .activityCard {
+    grid-column: 1;
+  }
 }

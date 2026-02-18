@@ -157,7 +157,7 @@
 }
 
 .scrollTop:hover {
-  background: var(--color-primary-light);
+  background: var(--color-primary-dark);
 }
 
 .scrollTopIcon {

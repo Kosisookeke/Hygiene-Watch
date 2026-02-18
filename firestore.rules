@@ -27,6 +27,12 @@ service cloud.firestore {
     match /tip_likes/{likeId} {
       allow read, write: if request.auth != null;
     }
+    // Activity log: users can create and read their own
+    match /activity_log/{docId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
     // Email subscriptions (contact form)
     match /email_subscriptions/{docId} {
       allow create: if true;

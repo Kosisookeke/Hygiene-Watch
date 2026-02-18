@@ -8,6 +8,7 @@ import {
 } from 'firebase/auth'
 import { useAuth } from '../contexts/AuthContext'
 import { db } from '../lib/firebase'
+import { logActivity } from '../lib/firestore'
 import Loader from '../components/Loader'
 import { IconUser, IconLock } from '../components/Icons'
 import styles from './AccountSettings.module.css'
@@ -49,6 +50,7 @@ export default function AccountSettings() {
         await updateProfile(user, { displayName: displayName.trim() })
       }
       await refreshProfile()
+      await logActivity({ userId: user.uid, action: 'profile_updated', description: 'Profile information updated' })
       setProfileSaved(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save')
@@ -75,6 +77,7 @@ export default function AccountSettings() {
       const credential = EmailAuthProvider.credential(user.email, currentPassword)
       await reauthenticateWithCredential(user, credential)
       await updatePassword(user, newPassword)
+      await logActivity({ userId: user.uid, action: 'password_changed', description: 'Password was changed' })
       setPasswordSaved(true)
       setCurrentPassword('')
       setNewPassword('')

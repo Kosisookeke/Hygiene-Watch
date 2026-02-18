@@ -3,6 +3,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { useAuth } from '../contexts/AuthContext'
 import Loader from '../components/Loader'
 import { db } from '../lib/firebase'
+import { logActivity } from '../lib/firestore'
 import styles from './PrivacySettings.module.css'
 
 const PROFILES_COLLECTION = 'profiles'
@@ -87,6 +88,7 @@ export default function PrivacySettings() {
         { merge: true }
       )
       await refreshProfile()
+      await logActivity({ userId: user.uid, action: 'privacy_updated', description: 'Privacy settings updated' })
       setSaved(true)
     } catch {
       // error handling

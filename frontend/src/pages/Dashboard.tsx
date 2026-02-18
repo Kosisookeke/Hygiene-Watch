@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { subscribeRecentActivity } from '../lib/firestore'
+import { subscribeRecentActivityByUser, subscribeUserActivityLog } from '../lib/firestore'
+import type { ActivityLogEntry } from '../lib/firestore'
 import { IconMapPin, IconLightbulb, IconFileText, IconUser, IconShield } from '../components/Icons'
 import type { Report, Tip } from '../lib/types'
 import styles from './Dashboard.module.css'
@@ -22,26 +23,59 @@ function relativeTime(s: string): string {
   }
 }
 
-type ActivityItem = (Report | Tip) & { _type: 'report' | 'tip' }
+type ActivityLogItem =
+  | { kind: 'report'; id: string; title: string; createdAt: string; link: string }
+  | { kind: 'tip'; id: string; title: string; createdAt: string; link: string }
+  | { kind: 'log'; id: string; description: string; createdAt: string }
 
 export default function Dashboard() {
   const { user, profile, role } = useAuth()
-  const [activity, setActivity] = useState<ActivityItem[]>([])
-  const hasReceived = useRef(false)
+  const [reportsAndTips, setReportsAndTips] = useState<Array<Report | Tip>>([])
+  const [logEntries, setLogEntries] = useState<ActivityLogEntry[]>([])
 
   useEffect(() => {
-    hasReceived.current = false
-    const unsub = subscribeRecentActivity((items) => {
-      if (!hasReceived.current) hasReceived.current = true
-      setActivity(
-        items.map((item) => ({
-          ...item,
-          _type: 'submittedById' in item ? ('report' as const) : ('tip' as const),
-        })) as ActivityItem[]
-      )
-    })
+    if (!user) return
+    const unsub = subscribeRecentActivityByUser(user.uid, setReportsAndTips)
     return () => unsub?.()
-  }, [])
+  }, [user?.uid])
+
+  useEffect(() => {
+    if (!user) return
+    const unsub = subscribeUserActivityLog(user.uid, setLogEntries)
+    return () => unsub?.()
+  }, [user?.uid])
+
+  const activityLog = useMemo(() => {
+    const items: ActivityLogItem[] = []
+    reportsAndTips.forEach((item) => {
+      if ('submittedById' in item) {
+        items.push({
+          kind: 'report',
+          id: item.id,
+          title: item.title,
+          createdAt: item.createdAt,
+          link: `/reports/${item.id}`,
+        })
+      } else {
+        items.push({
+          kind: 'tip',
+          id: (item as Tip).id,
+          title: (item as Tip).title,
+          createdAt: (item as Tip).createdAt,
+          link: `/tips/${(item as Tip).id}`,
+        })
+      }
+    })
+    logEntries.forEach((e) => {
+      items.push({
+        kind: 'log',
+        id: e.id,
+        description: e.description,
+        createdAt: e.createdAt,
+      })
+    })
+    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  }, [reportsAndTips, logEntries])
 
   const displayName = profile?.full_name || user?.displayName || user?.email || 'User'
 
@@ -105,51 +139,48 @@ export default function Dashboard() {
           <p className={styles.cardDesc}>
             Update your profile, view activity history, and manage your account.
           </p>
-          <Link to="/profile" className={styles.cardBtnOutline}>
-            View Profile
-          </Link>
-        </article>
-
-        <article className={styles.featureCard}>
-          <div className={styles.cardIconWrap}>
-            <IconShield />
+          <div className={styles.cardBtnGroup}>
+            <Link to="/profile" className={styles.cardBtnOutline}>
+              View Profile
+            </Link>
+            <Link to="/profile/privacy-settings" className={styles.cardBtnOutline}>
+              <IconShield /> Review Privacy
+            </Link>
           </div>
-          <h3 className={styles.cardTitle}>Review Privacy Settings</h3>
-          <p className={styles.cardDesc}>
-            Control who sees your data and manage your privacy preferences.
-          </p>
-          <Link to="/profile/privacy-settings" className={styles.cardBtnOutline}>
-            Manage Privacy
-          </Link>
         </article>
 
-        {/* Recent Activity Card */}
+        {/* Activity Log - all changes the user has made */}
         <article className={`${styles.featureCard} ${styles.activityCard}`}>
-          <h3 className={styles.cardTitle}>Recent Activity</h3>
+          <h3 className={styles.cardTitle}>Activity Log</h3>
+          <p className={styles.activitySubtitle}>What you&apos;ve done on HygieneWatch</p>
           <div className={styles.activityList}>
-            {activity.length === 0 ? (
-              <p className={styles.activityEmpty}>No recent activity.</p>
+            {!user ? (
+              <p className={styles.activityEmpty}>
+                <Link to="/login">Log in</Link> to see your activity.
+              </p>
+            ) : activityLog.length === 0 ? (
+              <p className={styles.activityEmpty}>No activity yet.</p>
             ) : (
-              activity.slice(0, 10).map((item) => (
-                <div key={`${item._type}-${item.id}`} className={styles.activityRow}>
+              activityLog.slice(0, 25).map((item) => (
+                <div key={`${item.kind}-${item.id}`} className={styles.activityRow}>
                   <span className={styles.activityIcon}>
-                    {item._type === 'report' ? <IconMapPin /> : <IconLightbulb />}
+                    {item.kind === 'report' && <IconMapPin />}
+                    {item.kind === 'tip' && <IconLightbulb />}
+                    {item.kind === 'log' && <IconUser />}
                   </span>
                   <div className={styles.activityContent}>
                     <span className={styles.activityText}>
-                      {item._type === 'report' ? item.title : (item as Tip).title}
-                      <span className={styles.activityBy}>
-                        {'submittedBy' in item ? ` by ${item.submittedBy}` : ` by ${item.author}`}
-                      </span>
+                      {item.kind === 'report' && `Report "${item.title}" was submitted`}
+                      {item.kind === 'tip' && `Hygiene tip "${item.title}" was submitted`}
+                      {item.kind === 'log' && item.description}
                     </span>
                     <span className={styles.activityTime}>{relativeTime(item.createdAt)}</span>
                   </div>
-                  <Link
-                    to={item._type === 'report' ? `/reports/${item.id}` : `/tips/${item.id}`}
-                    className={styles.activityLink}
-                  >
-                    View
-                  </Link>
+                  {(item.kind === 'report' || item.kind === 'tip') && (
+                    <Link to={item.link} className={styles.activityLink}>
+                      View
+                    </Link>
+                  )}
                 </div>
               ))
             )}

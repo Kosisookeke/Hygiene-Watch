@@ -19,6 +19,15 @@ const TIPS_COLLECTION = 'tips'
 const REPORTS_COLLECTION = 'reports'
 const COMMENTS_COLLECTION = 'comments'
 const TIP_LIKES_COLLECTION = 'tip_likes'
+const ACTIVITY_LOG_COLLECTION = 'activity_log'
+
+export type ActivityAction =
+  | 'tip_submitted'
+  | 'report_submitted'
+  | 'profile_updated'
+  | 'password_changed'
+  | 'privacy_updated'
+  | 'photo_updated'
 
 const POLL_MS = 30_000
 
@@ -249,6 +258,81 @@ export function subscribeRecentActivity(callback: (items: Array<Report | Tip>) =
   }
 }
 
+/** Log a user activity for the activity log */
+export async function logActivity(data: {
+  userId: string
+  action: ActivityAction
+  description: string
+  targetType?: 'tip' | 'report'
+  targetId?: string
+}): Promise<void> {
+  if (!hasFirebaseConfig || !db) return
+  try {
+    await addDoc(collection(db, ACTIVITY_LOG_COLLECTION), {
+      userId: data.userId,
+      action: data.action,
+      description: data.description,
+      targetType: data.targetType ?? null,
+      targetId: data.targetId ?? null,
+      createdAt: new Date().toISOString(),
+    })
+  } catch {
+    /* ignore */
+  }
+}
+
+export interface ActivityLogEntry {
+  id: string
+  userId: string
+  action: ActivityAction
+  description: string
+  targetType?: 'tip' | 'report'
+  targetId?: string
+  createdAt: string
+}
+
+/** Subscribe to a user's activity log entries */
+export function subscribeUserActivityLog(
+  userId: string,
+  callback: (entries: ActivityLogEntry[]) => void
+): Unsubscribe | null {
+  if (!hasFirebaseConfig || !db) return null
+  let cancelled = false
+  const run = async () => {
+    if (cancelled) return
+    try {
+      const q = query(
+        collection(db, ACTIVITY_LOG_COLLECTION),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc'),
+        limit(50)
+      )
+      const snap = await getDocs(q)
+      const entries: ActivityLogEntry[] = snap.docs.map((d) => {
+        const data = d.data()
+        return {
+          id: d.id,
+          userId: (data.userId as string) ?? '',
+          action: (data.action as ActivityAction) ?? 'profile_updated',
+          description: (data.description as string) ?? '',
+          targetType: data.targetType as 'tip' | 'report' | undefined,
+          targetId: data.targetId as string | undefined,
+          createdAt: (data.createdAt as string) ?? '',
+        }
+      })
+      if (!cancelled) callback(entries)
+    } catch {
+      if (!cancelled) callback([])
+    }
+  }
+  run()
+  const timer = setInterval(run, POLL_MS)
+  return () => {
+    cancelled = true
+    clearInterval(timer)
+  }
+}
+
 /** Recent activity for a specific user: their reports + tips, sorted by createdAt */
 export function subscribeRecentActivityByUser(
   userId: string,
@@ -346,6 +430,13 @@ export async function addReport(data: {
     if (data.lat != null) payload.lat = data.lat
     if (data.lng != null) payload.lng = data.lng
     const ref = await addDoc(collection(db, REPORTS_COLLECTION), payload)
+    logActivity({
+      userId: data.submittedById,
+      action: 'report_submitted',
+      description: `Report "${data.title}" was submitted`,
+      targetType: 'report',
+      targetId: ref.id,
+    }).catch(() => {})
     return ref.id
   } catch (err) {
     throw err instanceof Error ? err : new Error('Failed to submit report')

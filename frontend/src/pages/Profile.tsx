@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import Loader from '../components/Loader'
 import { doc, setDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
-import { subscribeReportsByUser, subscribeTipsByUser } from '../lib/firestore'
+import { subscribeReportsByUser, subscribeTipsByUser, logActivity } from '../lib/firestore'
 import { uploadImage, hasCloudinaryConfig } from '../lib/cloudinary'
 import {
   IconUser,
@@ -85,6 +85,7 @@ export default function Profile() {
         updated_at: new Date().toISOString(),
       }, { merge: true })
       await refreshProfile()
+      await logActivity({ userId: user.uid, action: 'photo_updated', description: 'Profile photo updated' })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to upload photo')
     } finally {
@@ -111,6 +112,7 @@ export default function Profile() {
       }
       await setDoc(profileRef, payload, { merge: true })
       await refreshProfile()
+      await logActivity({ userId: user.uid, action: 'profile_updated', description: 'Profile updated' })
       setSaved(true)
       setEditing(false)
     } catch (err) {
@@ -310,14 +312,6 @@ export default function Profile() {
         </div>
       </section>
       </div>
-
-      {/* Activity History */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Activity History</h3>
-        <p className={styles.activityPlaceholder}>
-          <Link to="/my-logs">View your reports and tips →</Link>
-        </p>
-      </section>
     </div>
   )
 }

@@ -23,11 +23,6 @@ service cloud.firestore {
     match /comments/{commentId} {
       allow read, create: if request.auth != null;
     }
-    // Tip likes: anyone can read (for like counts), authenticated users can write
-    match /tip_likes/{likeId} {
-      allow read: if true;
-      allow create, update, delete: if request.auth != null;
-    }
     // Activity log: users can create and read their own
     match /activity_log/{docId} {
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;

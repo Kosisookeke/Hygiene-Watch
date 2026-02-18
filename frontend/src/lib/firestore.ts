@@ -6,10 +6,8 @@ import {
   limit,
   addDoc,
   doc,
-  setDoc,
   getDoc,
   getDocs,
-  deleteDoc,
   onSnapshot,
   type Unsubscribe,
 } from 'firebase/firestore'
@@ -19,7 +17,6 @@ import type { Tip, Report, Comment, TipCategory, ReportIssueCategory } from './t
 const TIPS_COLLECTION = 'tips'
 const REPORTS_COLLECTION = 'reports'
 const COMMENTS_COLLECTION = 'comments'
-const TIP_LIKES_COLLECTION = 'tip_likes'
 const ACTIVITY_LOG_COLLECTION = 'activity_log'
 
 export type ActivityAction =
@@ -160,37 +157,6 @@ export async function addTip(data: {
     targetId: ref.id,
   }).catch(() => {})
   return ref.id
-}
-
-export async function getTipLikeCounts(tipIds: string[]): Promise<Record<string, number>> {
-  if (!hasFirebaseConfig || !db || tipIds.length === 0) return {}
-  const ids = [...new Set(tipIds)]
-  const counts: Record<string, number> = {}
-  ids.forEach((id) => { counts[id] = 0 })
-  try {
-    const snap = await getDocs(
-      query(collection(db, TIP_LIKES_COLLECTION), where('tipId', 'in', ids.slice(0, 10)))
-    )
-    snap.docs.forEach((d) => {
-      const tipId = (d.data().tipId as string) ?? ''
-      if (tipId in counts) counts[tipId]++
-    })
-    if (ids.length > 10) {
-      for (let i = 10; i < ids.length; i += 10) {
-        const chunk = ids.slice(i, i + 10)
-        const s = await getDocs(
-          query(collection(db, TIP_LIKES_COLLECTION), where('tipId', 'in', chunk))
-        )
-        s.docs.forEach((d) => {
-          const tipId = (d.data().tipId as string) ?? ''
-          if (tipId in counts) counts[tipId]++
-        })
-      }
-    }
-  } catch {
-    /* ignore */
-  }
-  return counts
 }
 
 export async function getTip(id: string): Promise<Tip | null> {
@@ -557,35 +523,4 @@ export async function addComment(data: {
     createdAt: now,
   })
   return ref.id
-}
-
-// —— Likes ———————————————————————————————————————————————————————————————
-
-export async function likeTip(tipId: string, userId: string): Promise<void> {
-  if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
-  const ref = doc(db, TIP_LIKES_COLLECTION, `${tipId}_${userId}`)
-  await setDoc(ref, { tipId, userId }, { merge: true })
-}
-
-export async function unlikeTip(tipId: string, userId: string): Promise<void> {
-  if (!hasFirebaseConfig || !db) return
-  try {
-    await deleteDoc(doc(db, TIP_LIKES_COLLECTION, `${tipId}_${userId}`))
-  } catch {
-    // Doc may not exist if already unliked
-  }
-}
-
-export async function getTipLikeCount(tipId: string): Promise<number> {
-  if (!hasFirebaseConfig || !db) return 0
-  const snap = await getDocs(
-    query(collection(db, TIP_LIKES_COLLECTION), where('tipId', '==', tipId))
-  )
-  return snap.size
-}
-
-export async function getUserLikedTip(tipId: string, userId: string): Promise<boolean> {
-  if (!hasFirebaseConfig || !db) return false
-  const snap = await getDoc(doc(db, TIP_LIKES_COLLECTION, `${tipId}_${userId}`))
-  return snap.exists()
 }

@@ -172,46 +172,6 @@
   margin-bottom: 0.75rem;
 }
 
-.cardActions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.likeBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.5rem;
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.likeBtn:hover:not(:disabled) {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.likeBtn:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.likeBtn.liked {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-  background: rgba(34, 197, 94, 0.12);
-}
-
-.likeBtn.liked svg {
-  fill: currentColor;
-}
-
 .cardLink {
   color: var(--color-primary);
   font-weight: 600;

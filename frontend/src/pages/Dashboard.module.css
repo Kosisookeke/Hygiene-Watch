@@ -35,12 +35,6 @@
   max-width: 640px;
 }
 
-/* Chart section - big, transparent */
-.chartSection {
-  margin-bottom: 32px;
-  background: transparent;
-}
-
 /* Cards grid - 3 columns on large screens, responsive */
 .cardsGrid {
   display: grid;

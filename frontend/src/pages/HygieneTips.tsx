@@ -127,7 +127,6 @@ export default function HygieneTips() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>Hygiene Tips</h1>
       <p className={styles.subtitle}>
         Learn and share best practices for community health
       </p>

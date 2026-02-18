@@ -69,9 +69,6 @@ export default function MyLogs() {
   return (
     <div className={styles.page}>
       <h1 className={styles.title}>My Logs</h1>
-      <p className={styles.subtitle}>
-        Your submitted reports and tips.
-      </p>
 
       {!user ? (
         <p className={styles.empty}>

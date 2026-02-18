@@ -10,6 +10,7 @@ import {
   getDoc,
   getDocs,
   deleteDoc,
+  onSnapshot,
   type Unsubscribe,
 } from 'firebase/firestore'
 import { db, hasFirebaseConfig } from './firebase'
@@ -69,27 +70,30 @@ function docToReport(d: { id: string; data: () => Record<string, unknown> }): Re
 
 async function fetchTips(): Promise<Tip[]> {
   if (!hasFirebaseConfig || !db) return []
-  const q = query(
-    collection(db, TIPS_COLLECTION),
-    where('approved', '==', true),
-    orderBy('createdAt', 'desc'),
-    limit(100)
-  )
-  const snap = await getDocs(q)
-  return snap.docs.map(docToTip)
+  try {
+    const q = query(
+      collection(db, TIPS_COLLECTION),
+      orderBy('createdAt', 'desc'),
+      limit(100)
+    )
+    const snap = await getDocs(q)
+    return snap.docs.map(docToTip)
+  } catch (err) {
+    console.error('[fetchTips]', err)
+    return []
+  }
 }
 
 export function subscribeTips(callback: (tips: Tip[]) => void): Unsubscribe | null {
-  if (!hasFirebaseConfig || !db) return null
+  if (!hasFirebaseConfig || !db) {
+    callback([])
+    return null
+  }
   let cancelled = false
   const run = async () => {
     if (cancelled) return
-    try {
-      const tips = await fetchTips()
-      if (!cancelled) callback(tips)
-    } catch {
-      if (!cancelled) callback([])
-    }
+    const tips = await fetchTips()
+    if (!cancelled) callback(tips)
   }
   run()
   const timer = setInterval(run, POLL_MS)
@@ -127,6 +131,66 @@ export function subscribeTipsByUser(
     cancelled = true
     clearInterval(timer)
   }
+}
+
+export async function addTip(data: {
+  title: string
+  description: string
+  category: TipCategory
+  author: string
+  authorId: string
+}): Promise<string> {
+  if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
+  const now = new Date().toISOString()
+  const ref = await addDoc(collection(db, TIPS_COLLECTION), {
+    title: data.title,
+    description: data.description,
+    category: data.category,
+    author: data.author,
+    authorId: data.authorId,
+    approved: true,
+    createdAt: now,
+    updatedAt: now,
+  })
+  logActivity({
+    userId: data.authorId,
+    action: 'tip_submitted',
+    description: `Hygiene tip "${data.title}" was submitted`,
+    targetType: 'tip',
+    targetId: ref.id,
+  }).catch(() => {})
+  return ref.id
+}
+
+export async function getTipLikeCounts(tipIds: string[]): Promise<Record<string, number>> {
+  if (!hasFirebaseConfig || !db || tipIds.length === 0) return {}
+  const ids = [...new Set(tipIds)]
+  const counts: Record<string, number> = {}
+  ids.forEach((id) => { counts[id] = 0 })
+  try {
+    const snap = await getDocs(
+      query(collection(db, TIP_LIKES_COLLECTION), where('tipId', 'in', ids.slice(0, 10)))
+    )
+    snap.docs.forEach((d) => {
+      const tipId = (d.data().tipId as string) ?? ''
+      if (tipId in counts) counts[tipId]++
+    })
+    if (ids.length > 10) {
+      for (let i = 10; i < ids.length; i += 10) {
+        const chunk = ids.slice(i, i + 10)
+        const s = await getDocs(
+          query(collection(db, TIP_LIKES_COLLECTION), where('tipId', 'in', chunk))
+        )
+        s.docs.forEach((d) => {
+          const tipId = (d.data().tipId as string) ?? ''
+          if (tipId in counts) counts[tipId]++
+        })
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return counts
 }
 
 export async function getTip(id: string): Promise<Tip | null> {
@@ -451,17 +515,15 @@ export function subscribeComments(
   callback: (comments: Comment[]) => void
 ): Unsubscribe | null {
   if (!hasFirebaseConfig || !db) return null
-  let cancelled = false
-  const run = async () => {
-    if (cancelled) return
-    try {
-      const q = query(
-        collection(db, COMMENTS_COLLECTION),
-        where('targetType', '==', targetType),
-        where('targetId', '==', targetId),
-        orderBy('createdAt', 'asc')
-      )
-      const snap = await getDocs(q)
+  const q = query(
+    collection(db, COMMENTS_COLLECTION),
+    where('targetType', '==', targetType),
+    where('targetId', '==', targetId),
+    orderBy('createdAt', 'asc')
+  )
+  const unsub = onSnapshot(
+    q,
+    (snap) => {
       const comments: Comment[] = snap.docs.map((d) => {
         const data = d.data()
         return {
@@ -474,17 +536,11 @@ export function subscribeComments(
           createdAt: (data.createdAt as string) ?? '',
         }
       })
-      if (!cancelled) callback(comments)
-    } catch {
-      if (!cancelled) callback([])
-    }
-  }
-  run()
-  const timer = setInterval(run, POLL_MS)
-  return () => {
-    cancelled = true
-    clearInterval(timer)
-  }
+      callback(comments)
+    },
+    () => callback([])
+  )
+  return () => unsub()
 }
 
 export async function addComment(data: {

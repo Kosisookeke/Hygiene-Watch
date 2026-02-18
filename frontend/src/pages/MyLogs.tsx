@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { subscribeReportsByUser, subscribeTipsByUser } from '../lib/firestore'
 import Loader from '../components/Loader'
+import { IconMapPin, IconLightbulb } from '../components/Icons'
 import type { Report, Tip } from '../lib/types'
 import styles from './MyLogs.module.css'
 
@@ -87,7 +88,10 @@ export default function MyLogs() {
           {all.map((item) => (
             <li key={`${item.type}-${item.id}`} className={styles.card}>
               <span className={styles.badge}>
-                {item.type === 'report' ? '📋' : '💡'} {item.type}
+                <span className={styles.badgeIcon}>
+                  {item.type === 'report' ? <IconMapPin /> : <IconLightbulb />}
+                </span>
+                {item.type}
               </span>
               <h2 className={styles.cardTitle}>{item.title}</h2>
               <div className={styles.cardMeta}>

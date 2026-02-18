@@ -1,6 +1,6 @@
 import type { User } from 'firebase/auth'
 
-export type AppRole = 'user' | 'inspector' | 'admin'
+export type AppRole = 'user' | 'admin'
 
 export interface Profile {
   id: string
@@ -13,6 +13,7 @@ export interface Profile {
   phone?: string | null
   about_me?: string | null
   avatar_url?: string | null
+  anonymous_tips?: boolean
 }
 
 export interface AuthState {

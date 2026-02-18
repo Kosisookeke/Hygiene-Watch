@@ -92,6 +92,12 @@
   cursor: not-allowed;
 }
 
+.likeBtn.liked {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: rgba(34, 197, 94, 0.12);
+}
+
 .heartFilled {
   color: #dc2626;
 }

@@ -25,11 +25,8 @@ export default function Header() {
                 <Link to="/report" className={styles.navLink}>Report Issue</Link>
                 <Link to="/my-logs" className={styles.navLink}>My Logs</Link>
                 <Link to="/profile" className={styles.navLink}>Profile</Link>
-                {(role === 'inspector' || role === 'admin') && (
-                  <Link to="/inspector" className={styles.navLink}>Inspector</Link>
-                )}
                 {role === 'admin' && (
-                  <Link to="/admin" className={styles.navLink}>Admin</Link>
+                  <Link to="/admin" className={styles.navLink}>Admin Inspector</Link>
                 )}
               </>
             )}

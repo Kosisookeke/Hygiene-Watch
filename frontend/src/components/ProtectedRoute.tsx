@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
   requiredRole?: AppRole
 }
 
-const ROLE_LEVEL: Record<AppRole, number> = { user: 1, inspector: 2, admin: 3 }
+const ROLE_LEVEL: Record<AppRole, number> = { user: 1, admin: 2 }
 
 export default function ProtectedRoute({ children, requiredRole = 'user' }: ProtectedRouteProps) {
   const { user, role, loading } = useAuth()

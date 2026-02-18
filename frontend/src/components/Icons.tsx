@@ -198,3 +198,29 @@ export function IconTrash2() {
     </svg>
   )
 }
+
+export function IconPlus() {
+  return (
+    <svg {...iconProps} aria-hidden>
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  )
+}
+
+export function IconThumbsUp() {
+  return (
+    <svg {...iconProps} aria-hidden>
+      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+    </svg>
+  )
+}
+
+export function IconX() {
+  return (
+    <svg {...iconProps} aria-hidden>
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  )
+}

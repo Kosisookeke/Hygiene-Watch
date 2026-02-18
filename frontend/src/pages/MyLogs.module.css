@@ -17,6 +17,15 @@
   margin: 0 0 1.5rem;
 }
 
+.successBanner {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid var(--color-primary);
+  color: var(--color-text);
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+
 .empty {
   color: var(--color-text-muted);
   padding: 2rem 0;
@@ -37,11 +46,30 @@
 }
 
 .badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.75rem;
   text-transform: uppercase;
   color: var(--color-primary);
   margin-bottom: 0.5rem;
+}
+
+.badgeIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.badgeIcon svg {
+  width: 14px;
+  height: 14px;
 }
 
 .cardTitle {

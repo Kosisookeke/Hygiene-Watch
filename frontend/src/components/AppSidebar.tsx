@@ -7,7 +7,6 @@ import {
   IconLightbulb,
   IconFileText,
   IconUser,
-  IconSearch,
   IconSettings,
 } from './Icons'
 import styles from './AppSidebar.module.css'
@@ -24,10 +23,7 @@ export default function AppSidebar() {
   const { role } = useAuth()
   const navItems = [
     ...baseNavItems,
-    ...(role === 'inspector' || role === 'admin'
-      ? [{ to: '/inspector', label: 'Inspector', Icon: IconSearch }]
-      : []),
-    ...(role === 'admin' ? [{ to: '/admin', label: 'Admin', Icon: IconSettings }] : []),
+    ...(role === 'admin' ? [{ to: '/admin', label: 'Admin Inspector', Icon: IconSettings }] : []),
   ]
 
   return (

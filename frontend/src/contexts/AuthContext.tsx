@@ -29,13 +29,14 @@ function profileFromDoc(id: string, data: Record<string, unknown> | undefined): 
     id,
     full_name: (data.full_name as string) ?? null,
     email: (data.email as string) ?? null,
-    role: (data.role as AppRole) ?? DEFAULT_ROLE,
+    role: (data.role === 'admin' || data.role === 'inspector' ? 'admin' : 'user') as AppRole,
     created_at: (data.created_at as string) ?? '',
     updated_at: (data.updated_at as string) ?? '',
     location: (data.location as string) ?? null,
     phone: (data.phone as string) ?? null,
     about_me: (data.about_me as string) ?? null,
     avatar_url: (data.avatar_url as string) ?? null,
+    anonymous_tips: Boolean(data.anonymous_tips),
   }
 }
 
@@ -84,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               phone: null,
               about_me: null,
               avatar_url: null,
+              anonymous_tips: false,
             }
             try {
               await setDoc(profileRef, newProfile)

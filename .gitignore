@@ -1,7 +1,16 @@
-# Env (never commit secrets)
+# Env & secrets (never commit)
 .env
 .env.local
-.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+**/.env
+**/.env.local
+**/.env.*.local
+**/secrets.json
+**/*-credentials*.json
+**/serviceAccount*.json
+**/firebase-adminsdk*.json
 
 # Firebase
 .firebase/

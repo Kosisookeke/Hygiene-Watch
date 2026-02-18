@@ -84,7 +84,7 @@ export default function Admin() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>Admin area</h1>
+      <h1 className={styles.title}>Admin Inspector Dashboard</h1>
       <p className={styles.subtitle}>
         Manage users, roles, and system settings.
       </p>
@@ -92,7 +92,7 @@ export default function Admin() {
       <section className={adminStyles.section}>
         <h2 className={adminStyles.sectionTitle}>Manage user roles</h2>
         <p className={adminStyles.sectionDesc}>
-          Change a user&apos;s role to <strong>user</strong>, <strong>inspector</strong>, or <strong>admin</strong>.
+          Change a user&apos;s role to <strong>user</strong> or <strong>admin</strong>.
           Set the first admin in Firebase Console (Firestore: profiles → your uid → role: &quot;admin&quot;); after that you can use this table.
         </p>
         {error && <div className={adminStyles.error}>{error}</div>}
@@ -130,7 +130,6 @@ export default function Admin() {
                           aria-label={`Role for ${p.email ?? p.id}`}
                         >
                           <option value="user">user</option>
-                          <option value="inspector">inspector</option>
                           <option value="admin">admin</option>
                         </select>
                       </td>

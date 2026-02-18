@@ -14,8 +14,8 @@ type PreferenceKey =
   | 'report_updates'
   | 'marketing_communications'
   | 'usage_analytics'
-  | 'academic_research'
   | 'third_party_services'
+  | 'anonymous_tips'
 
 const DEFAULT_PREFS: Record<PreferenceKey, boolean> = {
   email_notifications: true,
@@ -23,8 +23,8 @@ const DEFAULT_PREFS: Record<PreferenceKey, boolean> = {
   report_updates: true,
   marketing_communications: false,
   usage_analytics: true,
-  academic_research: false,
   third_party_services: false,
+  anonymous_tips: false,
 }
 
 export default function PrivacySettings() {
@@ -50,8 +50,8 @@ export default function PrivacySettings() {
             report_updates: Boolean(data?.report_updates ?? DEFAULT_PREFS.report_updates),
             marketing_communications: Boolean(data?.marketing_communications ?? DEFAULT_PREFS.marketing_communications),
             usage_analytics: Boolean(data?.usage_analytics ?? DEFAULT_PREFS.usage_analytics),
-            academic_research: Boolean(data?.academic_research ?? DEFAULT_PREFS.academic_research),
             third_party_services: Boolean(data?.third_party_services ?? DEFAULT_PREFS.third_party_services),
+            anonymous_tips: Boolean(data?.anonymous_tips ?? DEFAULT_PREFS.anonymous_tips),
           })
         }
       } catch {
@@ -81,8 +81,8 @@ export default function PrivacySettings() {
           report_updates: prefs.report_updates,
           marketing_communications: prefs.marketing_communications,
           usage_analytics: prefs.usage_analytics,
-          academic_research: prefs.academic_research,
           third_party_services: prefs.third_party_services,
+          anonymous_tips: prefs.anonymous_tips,
           updated_at: new Date().toISOString(),
         },
         { merge: true }
@@ -90,6 +90,7 @@ export default function PrivacySettings() {
       await refreshProfile()
       await logActivity({ userId: user.uid, action: 'privacy_updated', description: 'Privacy settings updated' })
       setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
     } catch {
       // error handling
     } finally {
@@ -111,6 +112,27 @@ export default function PrivacySettings() {
 
   return (
     <div className={styles.page}>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Tip &amp; Report Preferences</h2>
+        <div className={styles.preferenceList}>
+          <div className={styles.preferenceItem}>
+            <div className={styles.preferenceContent}>
+              <span className={styles.preferenceTitle}>Post tips anonymously</span>
+              <span className={styles.preferenceDesc}>When enabled, your name will show as "Anonymous" on tips you submit</span>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={prefs.anonymous_tips}
+              className={`${styles.toggle} ${prefs.anonymous_tips ? styles.toggleOn : ''}`}
+              onClick={() => toggle('anonymous_tips')}
+            >
+              <span className={styles.toggleThumb} />
+            </button>
+          </div>
+        </div>
+      </section>
+
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Notification Preferences</h2>
         <div className={styles.preferenceList}>
@@ -191,21 +213,6 @@ export default function PrivacySettings() {
               aria-checked={prefs.usage_analytics}
               className={`${styles.toggle} ${prefs.usage_analytics ? styles.toggleOn : ''}`}
               onClick={() => toggle('usage_analytics')}
-            >
-              <span className={styles.toggleThumb} />
-            </button>
-          </div>
-          <div className={styles.preferenceItem}>
-            <div className={styles.preferenceContent}>
-              <span className={styles.preferenceTitle}>Academic Research</span>
-              <span className={styles.preferenceDesc}>Allow anonymized data for academic research</span>
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={prefs.academic_research}
-              className={`${styles.toggle} ${prefs.academic_research ? styles.toggleOn : ''}`}
-              onClick={() => toggle('academic_research')}
             >
               <span className={styles.toggleThumb} />
             </button>

@@ -127,9 +127,6 @@ export default function HygieneTips() {
 
   return (
     <div className={styles.page}>
-      <p className={styles.subtitle}>
-        Learn and share best practices for community health
-      </p>
 
       {submitSuccess && (
         <p className={styles.successBanner} role="status">

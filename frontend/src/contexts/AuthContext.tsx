@@ -51,10 +51,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false)
       return
     }
-    // Handle return from Google Sign-In redirect (required for mobile)
-    getRedirectResult(auth).catch(() => { /* ignore, user may have cancelled */ })
     let profileUnsub: (() => void) | null = null
-    const unsubAuth = onAuthStateChanged(auth, (firebaseUser) => {
+    let unsubAuth: (() => void) | null = null
+
+    const init = async () => {
+      try {
+        await getRedirectResult(auth)
+      } catch {
+        /* user may have cancelled or redirect failed */
+      }
+      const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       if (profileUnsub) {
         profileUnsub()
         profileUnsub = null
@@ -108,9 +114,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearInterval(timer)
       }
     })
+      unsubAuth = unsub
+    }
+
+    init()
     return () => {
       if (profileUnsub) profileUnsub()
-      unsubAuth()
+      if (unsubAuth) unsubAuth()
     }
   }, [])
 

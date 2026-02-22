@@ -64,7 +64,7 @@ export interface Report {
   photoUrl?: string
   lat?: number
   lng?: number
-  status: 'pending' | 'in_review' | 'resolved'
+  status: 'pending' | 'in_review' | 'resolved' | 'rejected'
   submittedBy: string
   submittedById: string
   createdAt: string

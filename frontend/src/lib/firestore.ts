@@ -8,6 +8,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  updateDoc,
   onSnapshot,
   type Unsubscribe,
 } from 'firebase/firestore'
@@ -366,6 +367,79 @@ export function subscribeRecentActivityByUser(
     cancelled = true
     clearInterval(timer)
   }
+}
+
+/** Admin: subscribe to all reports */
+export function subscribeAllReports(callback: (reports: Report[]) => void): Unsubscribe | null {
+  if (!hasFirebaseConfig || !db) return null
+  let cancelled = false
+  const run = async () => {
+    if (cancelled) return
+    try {
+      const q = query(
+        collection(db, REPORTS_COLLECTION),
+        orderBy('createdAt', 'desc'),
+        limit(200)
+      )
+      const snap = await getDocs(q)
+      const reports = snap.docs.map(docToReport)
+      if (!cancelled) callback(reports)
+    } catch {
+      if (!cancelled) callback([])
+    }
+  }
+  run()
+  const timer = setInterval(run, POLL_MS)
+  return () => {
+    cancelled = true
+    clearInterval(timer)
+  }
+}
+
+/** Admin: subscribe to all tips (including unapproved) */
+export function subscribeAllTips(callback: (tips: Tip[]) => void): Unsubscribe | null {
+  if (!hasFirebaseConfig || !db) return null
+  let cancelled = false
+  const run = async () => {
+    if (cancelled) return
+    try {
+      const q = query(
+        collection(db, TIPS_COLLECTION),
+        orderBy('createdAt', 'desc'),
+        limit(200)
+      )
+      const snap = await getDocs(q)
+      const tips = snap.docs.map(docToTip)
+      if (!cancelled) callback(tips)
+    } catch {
+      if (!cancelled) callback([])
+    }
+  }
+  run()
+  const timer = setInterval(run, POLL_MS)
+  return () => {
+    cancelled = true
+    clearInterval(timer)
+  }
+}
+
+export async function updateReportStatus(
+  reportId: string,
+  status: Report['status']
+): Promise<void> {
+  if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
+  await updateDoc(doc(db, REPORTS_COLLECTION, reportId), {
+    status,
+    updatedAt: new Date().toISOString(),
+  })
+}
+
+export async function updateTipApproval(tipId: string, approved: boolean): Promise<void> {
+  if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
+  await updateDoc(doc(db, TIPS_COLLECTION, tipId), {
+    approved,
+    updatedAt: new Date().toISOString(),
+  })
 }
 
 export async function getReport(id: string): Promise<Report | null> {

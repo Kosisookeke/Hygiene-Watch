@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth'
+import { useAuth } from '../contexts/AuthContext'
 import { auth } from '../lib/firebase'
+import { isMobileAuth } from '../lib/authHelpers'
 import LogoIcon from '../components/LogoIcon'
 import GoogleSignInButton from '../components/GoogleSignInButton'
 import { IconEnvelope, IconLock, IconEye, IconEyeOff } from '../components/AuthIcons'
@@ -9,6 +11,7 @@ import styles from './Auth.module.css'
 
 export default function LogIn() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,10 +35,18 @@ export default function LogIn() {
     }
   }
 
+  useEffect(() => {
+    if (user) navigate('/dashboard', { replace: true })
+  }, [user, navigate])
+
   const handleGoogleSignIn = async () => {
     setError(null)
     setLoading(true)
     try {
+      if (isMobileAuth()) {
+        await signInWithRedirect(auth, new GoogleAuthProvider())
+        return
+      }
       await signInWithPopup(auth, new GoogleAuthProvider())
       navigate('/dashboard', { replace: true })
     } catch (err: unknown) {

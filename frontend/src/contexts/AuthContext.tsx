@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
 import {
   onAuthStateChanged,
+  getRedirectResult,
   signOut as firebaseSignOut,
   type User,
 } from 'firebase/auth'
@@ -50,6 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false)
       return
     }
+    // Handle return from Google Sign-In redirect (required for mobile)
+    getRedirectResult(auth).catch(() => { /* ignore, user may have cancelled */ })
     let profileUnsub: (() => void) | null = null
     const unsubAuth = onAuthStateChanged(auth, (firebaseUser) => {
       if (profileUnsub) {

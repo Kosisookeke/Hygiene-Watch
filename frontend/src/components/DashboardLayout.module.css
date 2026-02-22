@@ -20,6 +20,28 @@
   background: var(--color-bg);
 }
 
+.menuBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+  border-radius: var(--radius);
+}
+
+.menuBtn:hover {
+  background: var(--color-bg-muted);
+  color: var(--color-primary);
+}
+
+.menuBtn svg {
+  width: 24px;
+  height: 24px;
+}
+
 .pageTitle {
   font-size: 1.5rem;
   font-weight: 700;
@@ -96,4 +118,29 @@
   overflow-y: auto;
   min-height: 0;
   background: #f5f3ef;
+}
+
+/* Mobile: full-width content, hamburger visible */
+@media (min-width: 768px) {
+  .menuBtn {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .topBar {
+    padding: 0.75rem 1rem;
+  }
+
+  .pageTitle {
+    font-size: 1.25rem;
+  }
+
+  .userName {
+    display: none;
+  }
+
+  .content {
+    padding: 1rem;
+  }
 }

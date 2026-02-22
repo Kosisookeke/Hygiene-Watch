@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import LogoIcon from './LogoIcon'
 import { useAuth } from '../contexts/AuthContext'
+import { IconMenu, IconX } from './Icons'
 import styles from './Header.module.css'
 
 export default function Header() {
   const { user, role, loading, signOut } = useAuth()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <header className={styles.header}>
@@ -13,20 +16,29 @@ export default function Header() {
           <LogoIcon className={styles.logoIcon} />
           <span>HygieneWatch</span>
         </Link>
-        <div className={styles.navAndActions}>
+        <button
+          type="button"
+          className={styles.mobileMenuBtn}
+          onClick={() => setMobileMenuOpen((o) => !o)}
+          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileMenuOpen}
+        >
+          {mobileMenuOpen ? <IconX /> : <IconMenu />}
+        </button>
+        <div className={`${styles.navAndActions} ${mobileMenuOpen ? styles.navOpen : ''}`}>
           <nav className={styles.nav}>
-            <Link to="/" className={styles.navLink}>Home</Link>
-            <Link to="/tips" className={styles.navLink}>Hygiene Tips</Link>
-            <a href="/#about" className={styles.navLink}>About Us</a>
-            <a href="/#contact" className={styles.navLink}>Contact Us</a>
+            <Link to="/" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Home</Link>
+            <Link to="/tips" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Hygiene Tips</Link>
+            <a href="/#about" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>About Us</a>
+            <a href="/#contact" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Contact Us</a>
             {user && (
               <>
-                <Link to="/dashboard" className={styles.navLink}>Dashboard</Link>
-                <Link to="/report" className={styles.navLink}>Report Issue</Link>
-                <Link to="/my-logs" className={styles.navLink}>My Logs</Link>
-                <Link to="/profile" className={styles.navLink}>Profile</Link>
+                <Link to="/dashboard" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
+                <Link to="/report" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Report Issue</Link>
+                <Link to="/my-logs" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>My Logs</Link>
+                <Link to="/profile" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Profile</Link>
                 {role === 'admin' && (
-                  <Link to="/admin" className={styles.navLink}>Admin Inspector</Link>
+                  <Link to="/admin" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Admin Inspector</Link>
                 )}
               </>
             )}

@@ -1,8 +1,8 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import AppSidebar from './AppSidebar'
 import { useAuth } from '../contexts/AuthContext'
-import { IconLogOut } from './Icons'
+import { IconLogOut, IconMenu } from './Icons'
 import styles from './DashboardLayout.module.css'
 
 const PAGE_TITLES: Record<string, string> = {
@@ -18,6 +18,7 @@ const PAGE_TITLES: Record<string, string> = {
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, profile, signOut } = useAuth()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
   const path = location.pathname
   const pageTitle =
@@ -34,9 +35,21 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className={styles.wrapper}>
-      <AppSidebar />
+      <AppSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        onNavigate={() => setSidebarOpen(false)}
+      />
       <div className={styles.main}>
         <header className={styles.topBar}>
+          <button
+            type="button"
+            className={styles.menuBtn}
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
+          >
+            <IconMenu />
+          </button>
           <h1 className={styles.pageTitle}>{pageTitle}</h1>
           <div className={styles.userBlock}>
             <div className={styles.userInfo}>

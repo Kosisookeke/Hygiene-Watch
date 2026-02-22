@@ -295,3 +295,21 @@
     padding: 1rem 1.5rem 3rem;
   }
 }
+
+@media (max-width: 480px) {
+  .left {
+    padding: 1.5rem 1rem;
+  }
+
+  .right {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .cardTitle {
+    font-size: 1.2rem;
+  }
+}

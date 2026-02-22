@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
 import {
   onAuthStateChanged,
-  getRedirectResult,
   signOut as firebaseSignOut,
   type User,
 } from 'firebase/auth'
@@ -52,15 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
     let profileUnsub: (() => void) | null = null
-    let unsubAuth: (() => void) | null = null
-
-    const init = async () => {
-      try {
-        await getRedirectResult(auth)
-      } catch {
-        /* user may have cancelled or redirect failed */
-      }
-      const unsub = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubAuth = onAuthStateChanged(auth, (firebaseUser) => {
       if (profileUnsub) {
         profileUnsub()
         profileUnsub = null
@@ -114,13 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearInterval(timer)
       }
     })
-      unsubAuth = unsub
-    }
-
-    init()
     return () => {
       if (profileUnsub) profileUnsub()
-      if (unsubAuth) unsubAuth()
+      unsubAuth()
     }
   }, [])
 

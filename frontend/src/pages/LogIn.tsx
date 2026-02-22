@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth'
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
 import { useAuth } from '../contexts/AuthContext'
 import { auth } from '../lib/firebase'
-import { isMobileAuth } from '../lib/authHelpers'
 import LogoIcon from '../components/LogoIcon'
 import GoogleSignInButton from '../components/GoogleSignInButton'
 import { IconEnvelope, IconLock, IconEye, IconEyeOff } from '../components/AuthIcons'
@@ -43,10 +42,6 @@ export default function LogIn() {
     setError(null)
     setLoading(true)
     try {
-      if (isMobileAuth()) {
-        await signInWithRedirect(auth, new GoogleAuthProvider())
-        return
-      }
       await signInWithPopup(auth, new GoogleAuthProvider())
       navigate('/dashboard', { replace: true })
     } catch (err: unknown) {

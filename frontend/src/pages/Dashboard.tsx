@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { subscribeRecentActivityByUser, subscribeUserActivityLog } from '../lib/firestore'
 import type { ActivityLogEntry } from '../lib/firestore'
-import { IconMapPin, IconLightbulb, IconFileText, IconUser, IconShield } from '../components/Icons'
+import { IconMapPin, IconLightbulb, IconFileText, IconUser } from '../components/Icons'
 import type { Report, Tip } from '../lib/types'
 import styles from './Dashboard.module.css'
 
@@ -142,9 +142,6 @@ export default function Dashboard() {
           <div className={styles.cardBtnGroup}>
             <Link to="/profile" className={styles.cardBtnOutline}>
               View Profile
-            </Link>
-            <Link to="/profile/privacy-settings" className={styles.cardBtnOutline}>
-              <IconShield /> Review Privacy
             </Link>
           </div>
         </article>

@@ -1,0 +1,14 @@
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Vite inlines VITE_* vars into the client bundle - this is expected.
+  # Firebase/Cloudinary config are public client-side values; security is via Firestore rules and Auth.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_FIREBASE_API_KEY,VITE_FIREBASE_AUTH_DOMAIN,VITE_FIREBASE_PROJECT_ID,VITE_FIREBASE_STORAGE_BUCKET,VITE_FIREBASE_MESSAGING_SENDER_ID,VITE_FIREBASE_APP_ID,VITE_CLOUDINARY_CLOUD_NAME,VITE_CLOUDINARY_UPLOAD_PRESET"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

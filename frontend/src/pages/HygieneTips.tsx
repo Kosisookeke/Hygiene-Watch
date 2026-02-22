@@ -151,7 +151,7 @@ export default function HygieneTips() {
         <div className={styles.toolbarRight}>
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value || '')}
+            onChange={(e) => setCategory((e.target.value || '') as TipCategory | '')}
             className={styles.select}
             aria-label="Filter by category"
           >

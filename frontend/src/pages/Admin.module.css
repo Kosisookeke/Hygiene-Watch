@@ -303,6 +303,26 @@
   font-size: 0.85rem;
 }
 
+.commentBody {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commentBody:hover {
+  white-space: normal;
+}
+
+.link {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 1024px) {
   .metricsGrid {
     grid-template-columns: repeat(2, 1fr);

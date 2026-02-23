@@ -9,6 +9,7 @@ import {
   getDoc,
   getDocs,
   updateDoc,
+  deleteDoc,
   onSnapshot,
   type Unsubscribe,
 } from 'firebase/firestore'
@@ -560,4 +561,39 @@ export async function addComment(data: {
     createdAt: now,
   })
   return ref.id
+}
+
+/** Admin: subscribe to all comments (tips and reports) */
+export function subscribeAllComments(callback: (comments: Comment[]) => void): Unsubscribe | null {
+  if (!hasFirebaseConfig || !db) return null
+  const q = query(
+    collection(db, COMMENTS_COLLECTION),
+    orderBy('createdAt', 'desc')
+  )
+  const unsub = onSnapshot(
+    q,
+    (snap) => {
+      const comments: Comment[] = snap.docs.map((d) => {
+        const data = d.data()
+        return {
+          id: d.id,
+          targetType: (data.targetType as 'tip' | 'report') ?? 'tip',
+          targetId: (data.targetId as string) ?? '',
+          author: (data.author as string) ?? '',
+          authorId: (data.authorId as string) ?? '',
+          body: (data.body as string) ?? '',
+          createdAt: (data.createdAt as string) ?? '',
+        }
+      })
+      callback(comments)
+    },
+    () => callback([])
+  )
+  return () => unsub()
+}
+
+/** Admin: delete a comment */
+export async function deleteComment(commentId: string): Promise<void> {
+  if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
+  await deleteDoc(doc(db, COMMENTS_COLLECTION, commentId))
 }

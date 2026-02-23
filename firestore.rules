@@ -19,9 +19,11 @@ service cloud.firestore {
       allow create: if request.auth != null;
       allow update, delete: if request.auth != null;
     }
-    // Comments: authenticated users can read/create
+    // Comments: authenticated users can read/create; admins can delete
     match /comments/{commentId} {
       allow read, create: if request.auth != null;
+      allow delete: if request.auth != null &&
+        get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role == 'admin';
     }
     // Activity log: users can create and read their own
     match /activity_log/{docId} {

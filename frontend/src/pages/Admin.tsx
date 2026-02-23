@@ -7,8 +7,10 @@ import { db } from '../lib/firebase'
 import {
   subscribeAllReports,
   subscribeAllTips,
+  subscribeAllComments,
   updateReportStatus,
   updateTipApproval,
+  deleteComment,
 } from '../lib/firestore'
 import {
   IconFileText,
@@ -16,9 +18,11 @@ import {
   IconEye,
   IconCheck,
   IconX,
+  IconTrash2,
+  IconMail,
 } from '../components/Icons'
 import type { AppRole, Profile } from '../lib/types'
-import type { Report, Tip } from '../lib/types'
+import type { Report, Tip, Comment } from '../lib/types'
 import styles from './Dashboard.module.css'
 import adminStyles from './Admin.module.css'
 
@@ -52,8 +56,10 @@ export default function Admin() {
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [reports, setReports] = useState<Report[]>([])
   const [tips, setTips] = useState<Tip[]>([])
+  const [comments, setComments] = useState<Comment[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'reports' | 'tips'>('reports')
+  const [activeTab, setActiveTab] = useState<'reports' | 'tips' | 'comments'>('reports')
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null)
   const [reportCategoryFilter, setReportCategoryFilter] = useState('')
   const [reportDateFilter, setReportDateFilter] = useState('')
   const [tipCategoryFilter, setTipCategoryFilter] = useState('')
@@ -65,9 +71,11 @@ export default function Admin() {
     if (!isAdmin) return
     const unsubReports = subscribeAllReports(setReports)
     const unsubTips = subscribeAllTips(setTips)
+    const unsubComments = subscribeAllComments(setComments)
     return () => {
       unsubReports?.()
       unsubTips?.()
+      unsubComments?.()
     }
   }, [isAdmin])
 
@@ -106,7 +114,7 @@ export default function Admin() {
   ).length + tips.filter(
     (t) => t.approved && t.updatedAt?.slice(0, 10) === today
   ).length
-  const highPriority = pendingReports.length
+  const commentsCount = comments.length
 
   const filteredReports = useMemo(() => {
     let list = reports
@@ -160,6 +168,15 @@ export default function Admin() {
       await updateTipApproval(id, false)
     } finally {
       setUpdatingId(null)
+    }
+  }
+
+  async function handleDeleteComment(id: string) {
+    setDeletingCommentId(id)
+    try {
+      await deleteComment(id)
+    } finally {
+      setDeletingCommentId(null)
     }
   }
 
@@ -220,8 +237,8 @@ export default function Admin() {
           <p className={adminStyles.metricValue}>{approvedToday}</p>
         </article>
         <article className={`${styles.featureCard} ${adminStyles.metricCard} ${adminStyles.metricRed}`}>
-          <h3 className={adminStyles.metricTitle}>High Priority</h3>
-          <p className={adminStyles.metricValue}>{highPriority}</p>
+          <h3 className={adminStyles.metricTitle}>Comments</h3>
+          <p className={adminStyles.metricValue}>{commentsCount}</p>
         </article>
       </div>
 
@@ -242,6 +259,14 @@ export default function Admin() {
         >
           <IconLightbulb />
           Hygiene Tips
+        </button>
+        <button
+          type="button"
+          className={`${adminStyles.tab} ${activeTab === 'comments' ? adminStyles.tabActive : ''}`}
+          onClick={() => setActiveTab('comments')}
+        >
+          <IconMail />
+          Comments
         </button>
       </div>
 
@@ -349,7 +374,7 @@ export default function Admin() {
             <p className={adminStyles.empty}>No reports match your filters.</p>
           )}
         </article>
-      ) : (
+      ) : activeTab === 'tips' ? (
         <article className={`${styles.featureCard} ${adminStyles.tableCard}`}>
           <div className={adminStyles.sectionHeader}>
             <div>
@@ -441,7 +466,67 @@ export default function Admin() {
             <p className={adminStyles.empty}>No tips match your filters.</p>
           )}
         </article>
-      )}
+      ) : activeTab === 'comments' ? (
+        <article className={`${styles.featureCard} ${adminStyles.tableCard}`}>
+          <div className={adminStyles.sectionHeader}>
+            <div>
+              <h3 className={styles.cardTitle}>User Comments</h3>
+              <p className={adminStyles.sectionDesc}>Review and delete inappropriate comments from tips and reports</p>
+            </div>
+          </div>
+          {loading ? (
+            <Loader />
+          ) : (
+            <div className={adminStyles.tableWrap}>
+              <table className={adminStyles.table}>
+                <thead>
+                  <tr>
+                    <th>Comment</th>
+                    <th>Author</th>
+                    <th>On</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {comments.map((c) => (
+                    <tr key={c.id}>
+                      <td className={adminStyles.commentBody}>{c.body}</td>
+                      <td>{c.author}</td>
+                      <td>
+                        <Link
+                          to={c.targetType === 'tip' ? `/tips/${c.targetId}` : `/reports/${c.targetId}`}
+                          className={adminStyles.link}
+                        >
+                          {c.targetType === 'tip' ? 'Tip' : 'Report'} →
+                        </Link>
+                      </td>
+                      <td>{formatDate(c.createdAt)}</td>
+                      <td>
+                        <div className={adminStyles.actions}>
+                          <button
+                            type="button"
+                            className={`${adminStyles.actionBtn} ${adminStyles.actionReject}`}
+                            onClick={() => handleDeleteComment(c.id)}
+                            disabled={deletingCommentId === c.id}
+                            aria-label="Delete comment"
+                            title="Delete"
+                          >
+                            <IconTrash2 />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {!loading && comments.length === 0 && (
+            <p className={adminStyles.empty}>No comments yet.</p>
+          )}
+        </article>
+      ) : null}
 
       {/* User Management */}
       <article className={`${styles.featureCard} ${adminStyles.manageCard}`}>

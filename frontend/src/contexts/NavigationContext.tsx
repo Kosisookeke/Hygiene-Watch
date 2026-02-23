@@ -30,7 +30,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
       setNavigating(false)
     }, remaining)
     return () => clearTimeout(t)
-  }, [location.pathname, location.search])
+  }, [location.pathname, location.search, location.hash])
 
   // Intercept clicks on internal links to show loader when leaving
   useEffect(() => {
@@ -40,8 +40,8 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
       if (!link) return
       const href = link.getAttribute('href')
       if (!href || href.startsWith('//')) return
-      const path = href.split('?')[0]
-      if (path === location.pathname) return
+      const pathnameOnly = href.split('?')[0].split('#')[0] || '/'
+      if (pathnameOnly === location.pathname) return
       navigatingSinceRef.current = Date.now()
       setNavigating(true)
     }

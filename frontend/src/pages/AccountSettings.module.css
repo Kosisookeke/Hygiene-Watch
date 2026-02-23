@@ -1,4 +1,3 @@
-/* Page */
 .page {
   width: 100%;
   max-width: 900px;
@@ -29,7 +28,6 @@
   margin-bottom: 1.5rem;
 }
 
-/* Section cards - white, rounded, shadow + PAGE LIFT HOVER EFFECT */
 .section {
   background: #ffffff;
   border-radius: 12px;
@@ -79,19 +77,16 @@
   gap: 1.25rem;
 }
 
-/* Phone field: single column, fits under Display Name, same vertical spacing as password fields */
 .fieldPhone {
   grid-column: 1;
 }
 
-/* Password: Row 1 = Current | New, Row 2 = Confirm (full width) */
 .passwordGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
 }
 
-/* Confirm under Current Password, same width (left column) */
 .fieldConfirm {
   grid-column: 1;
   display: flex;
@@ -184,7 +179,6 @@
   margin: 0;
 }
 
-/* Action buttons - Save Profile, Change Password: small, left-aligned, white, dark green */
 .btnAction {
   display: inline-flex;
   align-items: center;

@@ -11,8 +11,8 @@ import Loader from './Loader'
 export default function HomeOrDashboard() {
   const { user, loading } = useAuth()
   const { hash } = useLocation()
-  if (loading) return <Loader />
   const isAboutOrContact = hash === '#about' || hash === '#contact'
+  if (loading && !isAboutOrContact) return <Loader />
   if (user && !isAboutOrContact) return <Navigate to="/dashboard" replace />
   return <Home />
 }

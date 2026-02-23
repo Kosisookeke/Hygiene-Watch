@@ -29,8 +29,8 @@ export default function Header() {
           <nav className={styles.nav}>
             <Link to="/" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Home</Link>
             <Link to="/tips" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Hygiene Tips</Link>
-            <Link to="/#about" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>About Us</Link>
-            <Link to="/#contact" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Contact Us</Link>
+            <a href="/#about" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>About Us</a>
+            <a href="/#contact" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Contact Us</a>
             {user && (
               <>
                 <Link to="/dashboard" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>

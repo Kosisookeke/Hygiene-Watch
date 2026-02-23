@@ -10,10 +10,16 @@ export default function Home() {
   const [sent, setSent] = useState(false)
 
   useEffect(() => {
-    if (hash) {
-      const id = hash.replace('#', '')
-      const el = document.getElementById(id)
-      el?.scrollIntoView({ behavior: 'smooth' })
+    const hashToUse = hash || (typeof window !== 'undefined' ? window.location.hash : '')
+    if (hashToUse) {
+      const id = hashToUse.replace('#', '')
+      const scrollToEl = () => {
+        const el = document.getElementById(id)
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+      }
+      scrollToEl()
+      const t = setTimeout(scrollToEl, 100)
+      return () => clearTimeout(t)
     }
   }, [hash])
   const [learnMoreEmail, setLearnMoreEmail] = useState('')

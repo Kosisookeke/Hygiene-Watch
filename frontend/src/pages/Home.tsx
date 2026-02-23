@@ -1,12 +1,21 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { collection, addDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import styles from './Home.module.css'
 import contactStyles from './Contact.module.css'
 
 export default function Home() {
+  const { hash } = useLocation()
   const [sent, setSent] = useState(false)
+
+  useEffect(() => {
+    if (hash) {
+      const id = hash.replace('#', '')
+      const el = document.getElementById(id)
+      el?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [hash])
   const [learnMoreEmail, setLearnMoreEmail] = useState('')
   const [isSubscribing, setIsSubscribing] = useState(false)
   const [contactName, setContactName] = useState('')

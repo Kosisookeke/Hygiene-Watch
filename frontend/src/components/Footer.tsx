@@ -30,8 +30,8 @@ export default function Footer() {
         </div>
         <div className={styles.column}>
           <h4 className={styles.columnTitle}>Company</h4>
-          <a href="/#about" className={styles.footerLink}>About Us</a>
-          <a href="/#contact" className={styles.footerLink}>Contact Us</a>
+          <Link to="/#about" className={styles.footerLink}>About Us</Link>
+          <Link to="/#contact" className={styles.footerLink}>Contact Us</Link>
           <Link to="/signup" className={styles.footerLink}>Sign Up</Link>
           <Link to="/login" className={styles.footerLink}>Log In</Link>
         </div>

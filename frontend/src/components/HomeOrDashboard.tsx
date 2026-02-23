@@ -1,15 +1,18 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import Home from '../pages/Home'
 import Loader from './Loader'
 
 /**
  * For logged-in users, redirect to dashboard (home is in the dashboard).
+ * Exception: show Home when navigating to #about or #contact so those links work.
  * For guests, show the marketing Home page.
  */
 export default function HomeOrDashboard() {
   const { user, loading } = useAuth()
+  const { hash } = useLocation()
   if (loading) return <Loader />
-  if (user) return <Navigate to="/dashboard" replace />
+  const isAboutOrContact = hash === '#about' || hash === '#contact'
+  if (user && !isAboutOrContact) return <Navigate to="/dashboard" replace />
   return <Home />
 }

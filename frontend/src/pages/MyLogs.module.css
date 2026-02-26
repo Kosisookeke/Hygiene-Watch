@@ -79,6 +79,30 @@
   color: var(--color-text);
 }
 
+.trackerWrap {
+  margin: 0.75rem 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.cardActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.trackLink {
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.trackLink:hover {
+  text-decoration: underline;
+}
+
 .cardMeta {
   display: flex;
   gap: 1rem;

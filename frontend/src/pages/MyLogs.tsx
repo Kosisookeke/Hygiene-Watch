@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { subscribeReportsByUser, subscribeTipsByUser } from '../lib/firestore'
 import Loader from '../components/Loader'
+import ReportTrackerBar from '../components/ReportTrackerBar'
 import { IconMapPin, IconLightbulb } from '../components/Icons'
 import type { Report, Tip } from '../lib/types'
 import styles from './MyLogs.module.css'
@@ -55,6 +56,7 @@ export default function MyLogs() {
     title: r.title,
     date: r.createdAt,
     status: r.status,
+    report: r,
   }))
   const tipItems = tips.map((t) => ({
     type: 'tip' as const,
@@ -90,18 +92,33 @@ export default function MyLogs() {
                 {item.type}
               </span>
               <h2 className={styles.cardTitle}>{item.title}</h2>
+              {item.type === 'report' && 'report' in item && (
+                <div className={styles.trackerWrap}>
+                  <ReportTrackerBar report={item.report} compact />
+                </div>
+              )}
               <div className={styles.cardMeta}>
                 <span>{formatDate(item.date)}</span>
                 {'status' in item && (
                   <span className={styles.status}>{item.status}</span>
                 )}
               </div>
-              <Link
-                to={item.type === 'report' ? `/reports/${item.id}` : `/tips/${item.id}`}
-                className={styles.cardLink}
-              >
-                View →
-              </Link>
+              <div className={styles.cardActions}>
+                {item.type === 'report' && (
+                  <Link
+                    to={`/reports/${item.id}/track`}
+                    className={styles.trackLink}
+                  >
+                    Track Report
+                  </Link>
+                )}
+                <Link
+                  to={item.type === 'report' ? `/reports/${item.id}` : `/tips/${item.id}`}
+                  className={styles.cardLink}
+                >
+                  View →
+                </Link>
+              </div>
             </li>
           ))}
         </ul>

@@ -11,10 +11,11 @@ import {
   updateDoc,
   deleteDoc,
   onSnapshot,
+  arrayUnion,
   type Unsubscribe,
 } from 'firebase/firestore'
 import { db, hasFirebaseConfig } from './firebase'
-import type { Tip, Report, Comment, TipCategory, ReportIssueCategory } from './types'
+import type { Tip, Report, Comment, TipCategory, ReportIssueCategory, ReportStatusEntry } from './types'
 
 const TIPS_COLLECTION = 'tips'
 const REPORTS_COLLECTION = 'reports'
@@ -46,6 +47,17 @@ function docToTip(d: { id: string; data: () => Record<string, unknown> }): Tip {
   }
 }
 
+function parseStatusHistory(raw: unknown): ReportStatusEntry[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .filter((e): e is Record<string, unknown> => e != null && typeof e === 'object')
+    .map((e) => ({
+      status: (e.status as Report['status']) ?? 'pending',
+      timestamp: (e.timestamp as string) ?? '',
+      description: e.description as string | undefined,
+    }))
+}
+
 function docToReport(d: { id: string; data: () => Record<string, unknown> }): Report {
   const data = d.data()
   return {
@@ -62,6 +74,7 @@ function docToReport(d: { id: string; data: () => Record<string, unknown> }): Re
     submittedById: (data.submittedById as string) ?? '',
     createdAt: (data.createdAt as string) ?? '',
     updatedAt: (data.updatedAt as string) ?? '',
+    statusHistory: parseStatusHistory(data.statusHistory),
   }
 }
 
@@ -424,14 +437,30 @@ export function subscribeAllTips(callback: (tips: Tip[]) => void): Unsubscribe |
   }
 }
 
+const STATUS_DESCRIPTIONS: Record<Report['status'], string> = {
+  pending: 'Report submitted',
+  in_review: 'Report under review by inspector',
+  accepted: 'Report accepted',
+  in_progress: 'Report in progress',
+  resolved: 'Report resolved',
+  rejected: 'Report rejected',
+}
+
 export async function updateReportStatus(
   reportId: string,
   status: Report['status']
 ): Promise<void> {
   if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
+  const now = new Date().toISOString()
+  const entry: ReportStatusEntry = {
+    status,
+    timestamp: now,
+    description: STATUS_DESCRIPTIONS[status],
+  }
   await updateDoc(doc(db, REPORTS_COLLECTION, reportId), {
     status,
-    updatedAt: new Date().toISOString(),
+    updatedAt: now,
+    statusHistory: arrayUnion(entry),
   })
 }
 
@@ -463,6 +492,7 @@ export async function getReport(id: string): Promise<Report | null> {
       submittedById: (data.submittedById as string) ?? '',
       createdAt: (data.createdAt as string) ?? '',
       updatedAt: (data.updatedAt as string) ?? '',
+      statusHistory: parseStatusHistory(data.statusHistory),
     }
   } catch {
     return null
@@ -483,6 +513,11 @@ export async function addReport(data: {
   if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
   try {
     const now = new Date().toISOString()
+    const initialEntry: ReportStatusEntry = {
+      status: 'pending',
+      timestamp: now,
+      description: 'Report submitted',
+    }
     const payload: Record<string, unknown> = {
       title: data.title,
       description: data.description,
@@ -491,6 +526,7 @@ export async function addReport(data: {
       status: 'pending',
       createdAt: now,
       updatedAt: now,
+      statusHistory: [initialEntry],
     }
     if (data.category != null) payload.category = data.category
     if (data.location != null) payload.location = data.location

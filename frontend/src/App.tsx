@@ -8,6 +8,7 @@ import HygieneTips from './pages/HygieneTips'
 import TipView from './pages/TipView'
 import ReportIssue from './pages/ReportIssue'
 import ReportView from './pages/ReportView'
+import ReportTracking from './pages/ReportTracking'
 import MyLogs from './pages/MyLogs'
 import Profile from './pages/Profile'
 import AccountSettings from './pages/AccountSettings'
@@ -33,6 +34,7 @@ function App() {
               <Route path="/tips/:id" element={<TipView />} />
               <Route path="/report" element={<ProtectedRoute><ReportIssue /></ProtectedRoute>} />
               <Route path="/reports/:id" element={<ReportView />} />
+              <Route path="/reports/:id/track" element={<ReportTracking />} />
               <Route path="/my-logs" element={<ProtectedRoute><MyLogs /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/profile/account-settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />

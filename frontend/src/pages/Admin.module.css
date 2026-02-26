@@ -200,6 +200,16 @@
   color: #1e40af;
 }
 
+.status_accepted {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status_in_progress {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
 .status_resolved {
   background: #d1fae5;
   color: #065f46;
@@ -234,6 +244,27 @@
 .actionBtn:hover {
   background: rgba(0, 0, 0, 0.1);
   color: var(--color-text);
+}
+
+.statusTextBtn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: none;
+  background: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.statusTextBtn:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.statusTextBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .actionApprove {

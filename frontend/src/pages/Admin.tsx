@@ -102,19 +102,10 @@ export default function Admin() {
     return list
   }, [tips, tipCategoryFilter])
 
-  async function handleApproveReport(id: string) {
+  async function handleUpdateReportStatus(id: string, status: Report['status']) {
     setUpdatingId(id)
     try {
-      await updateReportStatus(id, 'resolved')
-    } finally {
-      setUpdatingId(null)
-    }
-  }
-
-  async function handleRejectReport(id: string) {
-    setUpdatingId(id)
-    try {
-      await updateReportStatus(id, 'rejected')
+      await updateReportStatus(id, status)
     } finally {
       setUpdatingId(null)
     }
@@ -294,17 +285,17 @@ export default function Admin() {
                               <button
                                 type="button"
                                 className={`${adminStyles.actionBtn} ${adminStyles.actionApprove}`}
-                                onClick={() => handleApproveReport(r.id)}
+                                onClick={() => handleUpdateReportStatus(r.id, 'in_review')}
                                 disabled={updatingId === r.id}
-                                aria-label="Approve"
-                                title="Approve"
+                                aria-label="Accept for review"
+                                title="Accept for review"
                               >
                                 <IconCheck />
                               </button>
                               <button
                                 type="button"
                                 className={`${adminStyles.actionBtn} ${adminStyles.actionReject}`}
-                                onClick={() => handleRejectReport(r.id)}
+                                onClick={() => handleUpdateReportStatus(r.id, 'rejected')}
                                 disabled={updatingId === r.id}
                                 aria-label="Reject"
                                 title="Reject"
@@ -312,6 +303,66 @@ export default function Admin() {
                                 <IconX />
                               </button>
                             </>
+                          )}
+                          {r.status === 'in_review' && (
+                            <>
+                              <button
+                                type="button"
+                                className={adminStyles.statusTextBtn}
+                                onClick={() => handleUpdateReportStatus(r.id, 'accepted')}
+                                disabled={updatingId === r.id}
+                                aria-label="Accept"
+                                title="Accept"
+                              >
+                                Accept
+                              </button>
+                              <button
+                                type="button"
+                                className={adminStyles.statusTextBtn}
+                                onClick={() => handleUpdateReportStatus(r.id, 'rejected')}
+                                disabled={updatingId === r.id}
+                                aria-label="Reject"
+                                title="Reject"
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
+                          {r.status === 'accepted' && (
+                            <>
+                              <button
+                                type="button"
+                                className={adminStyles.statusTextBtn}
+                                onClick={() => handleUpdateReportStatus(r.id, 'in_progress')}
+                                disabled={updatingId === r.id}
+                                aria-label="Set in progress"
+                                title="In progress"
+                              >
+                                In Progress
+                              </button>
+                              <button
+                                type="button"
+                                className={adminStyles.statusTextBtn}
+                                onClick={() => handleUpdateReportStatus(r.id, 'resolved')}
+                                disabled={updatingId === r.id}
+                                aria-label="Resolve"
+                                title="Resolve"
+                              >
+                                Resolve
+                              </button>
+                            </>
+                          )}
+                          {r.status === 'in_progress' && (
+                            <button
+                              type="button"
+                              className={adminStyles.statusTextBtn}
+                              onClick={() => handleUpdateReportStatus(r.id, 'resolved')}
+                              disabled={updatingId === r.id}
+                              aria-label="Resolve"
+                              title="Resolve"
+                            >
+                              Resolve
+                            </button>
                           )}
                         </div>
                       </td>

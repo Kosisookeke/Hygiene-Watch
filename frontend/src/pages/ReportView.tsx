@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { getReport } from '../lib/firestore'
 import Loader from '../components/Loader'
+import ReportTrackerBar from '../components/ReportTrackerBar'
 import type { Report } from '../lib/types'
 import styles from './ReportView.module.css'
 
@@ -64,6 +65,13 @@ export default function ReportView() {
   return (
     <div className={styles.page}>
       <Link to="/my-logs" className={styles.back}>← Back to My Logs</Link>
+
+      <div className={styles.trackerSection}>
+        <ReportTrackerBar report={report} />
+        <Link to={`/reports/${report.id}/track`} className={styles.trackBtn}>
+          Track Report
+        </Link>
+      </div>
 
       <article className={styles.article}>
         <span className={styles.status}>{report.status}</span>

@@ -55,6 +55,14 @@ export type ReportIssueCategory =
   | 'Food Safety'
   | 'Other'
 
+export type ReportStatus = 'pending' | 'in_review' | 'accepted' | 'in_progress' | 'resolved' | 'rejected'
+
+export interface ReportStatusEntry {
+  status: ReportStatus
+  timestamp: string
+  description?: string
+}
+
 export interface Report {
   id: string
   title: string
@@ -64,11 +72,12 @@ export interface Report {
   photoUrl?: string
   lat?: number
   lng?: number
-  status: 'pending' | 'in_review' | 'resolved' | 'rejected'
+  status: ReportStatus
   submittedBy: string
   submittedById: string
   createdAt: string
   updatedAt: string
+  statusHistory?: ReportStatusEntry[]
 }
 
 export interface Comment {

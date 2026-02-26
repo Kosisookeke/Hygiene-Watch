@@ -140,6 +140,8 @@ export default function HygieneTips() {
             <IconSearch />
           </span>
           <input
+            id="tips-search"
+            name="search"
             type="search"
             placeholder="Search tips by title, description"
             value={search}
@@ -150,6 +152,8 @@ export default function HygieneTips() {
         </div>
         <div className={styles.toolbarRight}>
           <select
+            id="tips-category"
+            name="category"
             value={category}
             onChange={(e) => setCategory((e.target.value || '') as TipCategory | '')}
             className={styles.select}
@@ -161,6 +165,8 @@ export default function HygieneTips() {
             ))}
           </select>
           <select
+            id="tips-sort"
+            name="sortOrder"
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
             className={styles.select}
@@ -238,6 +244,7 @@ export default function HygieneTips() {
                 <label htmlFor="tip-title">Title</label>
                 <input
                   id="tip-title"
+                  name="title"
                   type="text"
                   value={formTitle}
                   onChange={(e) => setFormTitle(e.target.value)}
@@ -250,6 +257,7 @@ export default function HygieneTips() {
                 <label htmlFor="tip-category">Category</label>
                 <select
                   id="tip-category"
+                  name="category"
                   value={formCategory}
                   onChange={(e) => setFormCategory(e.target.value as TipCategory)}
                   className={styles.input}
@@ -263,6 +271,7 @@ export default function HygieneTips() {
                 <label htmlFor="tip-description">Description</label>
                 <textarea
                   id="tip-description"
+                  name="description"
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
                   placeholder="Provide detailed information about your hygiene tip…"

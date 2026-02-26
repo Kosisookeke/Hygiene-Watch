@@ -137,8 +137,8 @@ export default function SignUp() {
                 <button type="button" className={styles.togglePw} onClick={() => setShowPassword(!showPassword)} aria-label="Toggle visibility">{showPassword ? <IconEyeOff /> : <IconEye />}</button>
               </div>
             </div>
-            <label className={styles.checkbox}>
-              <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} required />
+            <label className={styles.checkbox} htmlFor="signup-terms">
+              <input id="signup-terms" name="agreeTerms" type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} required />
               <span>I agree to the Terms and Conditions</span>
             </label>
             {error && <p className={styles.errorMsg} role="alert">{error}</p>}

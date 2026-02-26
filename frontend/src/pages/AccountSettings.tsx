@@ -121,6 +121,7 @@ export default function AccountSettings() {
               <label htmlFor="displayName">Display Name</label>
               <input
                 id="displayName"
+                name="displayName"
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
@@ -131,6 +132,7 @@ export default function AccountSettings() {
               <label htmlFor="email">Email Address</label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 value={user.email ?? ''}
                 disabled
@@ -141,6 +143,7 @@ export default function AccountSettings() {
               <label htmlFor="phone">Phone Number</label>
               <input
                 id="phone"
+                name="phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -166,6 +169,7 @@ export default function AccountSettings() {
               <label htmlFor="currentPassword">Current Password</label>
               <input
                 id="currentPassword"
+                name="currentPassword"
                 type="password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
@@ -176,6 +180,7 @@ export default function AccountSettings() {
               <label htmlFor="newPassword">New Password</label>
               <input
                 id="newPassword"
+                name="newPassword"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -186,6 +191,7 @@ export default function AccountSettings() {
               <label htmlFor="confirmPassword">Confirm New Password</label>
               <input
                 id="confirmPassword"
+                name="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}

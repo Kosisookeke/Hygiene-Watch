@@ -296,6 +296,8 @@ export default function Home() {
           <p className={styles.ctaSub}>Join others building better habits. Get started today.</p>
           <form className={styles.ctaForm} onSubmit={handleLearnMoreSubmit}>
             <input
+              id="cta-email"
+              name="email"
               type="email"
               placeholder="Enter Email Address"
               className={styles.ctaInput}

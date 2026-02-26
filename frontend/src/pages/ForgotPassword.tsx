@@ -56,6 +56,7 @@ export default function ForgotPassword() {
                   <span className={styles.fieldIcon}><IconEnvelope /></span>
                   <input
                     id="forgot-email"
+                    name="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}

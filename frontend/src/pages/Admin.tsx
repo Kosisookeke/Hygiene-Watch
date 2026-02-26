@@ -227,6 +227,8 @@ export default function Admin() {
             </div>
             <div className={adminStyles.filters}>
               <select
+                id="admin-report-category"
+                name="reportCategory"
                 value={reportCategoryFilter}
                 onChange={(e) => setReportCategoryFilter(e.target.value)}
                 className={adminStyles.filterSelect}
@@ -238,6 +240,8 @@ export default function Admin() {
                 ))}
               </select>
               <input
+                id="admin-report-date"
+                name="reportDate"
                 type="date"
                 value={reportDateFilter}
                 onChange={(e) => setReportDateFilter(e.target.value)}
@@ -329,6 +333,8 @@ export default function Admin() {
               <p className={adminStyles.sectionDesc}>Review and approve submitted tips</p>
             </div>
             <select
+              id="admin-tip-category"
+              name="tipCategory"
               value={tipCategoryFilter}
               onChange={(e) => setTipCategoryFilter(e.target.value)}
               className={adminStyles.filterSelect}

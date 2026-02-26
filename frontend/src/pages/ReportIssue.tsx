@@ -225,6 +225,7 @@ export default function ReportIssue() {
                   <div className={styles.locationInputWrap}>
                     <input
                       id="report-location"
+                      name="location"
                       type="text"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
@@ -274,6 +275,7 @@ export default function ReportIssue() {
                 <label htmlFor="report-category">Issue Category</label>
                 <select
                   id="report-category"
+                  name="category"
                   value={category}
                   onChange={(e) => setCategory(e.target.value as ReportIssueCategory)}
                   className={styles.select}
@@ -288,6 +290,7 @@ export default function ReportIssue() {
                 <label htmlFor="report-description">Description</label>
                 <textarea
                   id="report-description"
+                  name="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe the sanitation issue in detail..."
@@ -300,7 +303,7 @@ export default function ReportIssue() {
               </div>
 
               <div className={styles.field}>
-                <label>
+                <label htmlFor="report-photo">
                   <IconCamera /> Upload Image
                 </label>
                 <div
@@ -324,11 +327,14 @@ export default function ReportIssue() {
                   }}
                 >
                   <input
+                    id="report-photo"
+                    name="photo"
                     ref={fileInputRef}
                     type="file"
                     accept="image/png,image/jpeg,image/jpg"
                     onChange={handlePhotoChange}
                     className={styles.fileInput}
+                    aria-label="Upload image"
                   />
                   {photoPreview ? (
                     <img src={photoPreview} alt="Preview" className={styles.previewImg} />

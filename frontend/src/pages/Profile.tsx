@@ -165,6 +165,8 @@ export default function Profile() {
             )}
           </div>
           <input
+            id="profile-avatar"
+            name="avatar"
             ref={fileInputRef}
             type="file"
             accept="image/*"
@@ -216,28 +218,34 @@ export default function Profile() {
             {saved && <p className={styles.success}>Profile updated.</p>}
             <div className={styles.formGrid}>
               <div className={styles.field}>
-                <label>FULL NAME</label>
+                <label htmlFor="profile-fullname">FULL NAME</label>
                 <input
+                  id="profile-fullname"
+                  name="full_name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Your name"
                 />
               </div>
               <div className={styles.field}>
-                <label>EMAIL</label>
-                <input value={user.email ?? ''} disabled placeholder="Email" />
+                <label htmlFor="profile-email">EMAIL</label>
+                <input id="profile-email" name="email" value={user.email ?? ''} disabled placeholder="Email" />
               </div>
               <div className={styles.field}>
-                <label>LOCATION</label>
+                <label htmlFor="profile-location">LOCATION</label>
                 <input
+                  id="profile-location"
+                  name="location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="e.g. Rwanda"
                 />
               </div>
               <div className={styles.field}>
-                <label>PHONE</label>
+                <label htmlFor="profile-phone">PHONE</label>
                 <input
+                  id="profile-phone"
+                  name="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g. 07982273728"
@@ -245,8 +253,10 @@ export default function Profile() {
               </div>
             </div>
             <div className={styles.field}>
-              <label>ABOUT ME</label>
+              <label htmlFor="profile-aboutme">ABOUT ME</label>
               <textarea
+                id="profile-aboutme"
+                name="about_me"
                 value={aboutMe}
                 onChange={(e) => setAboutMe(e.target.value)}
                 placeholder="Tell us about yourself"

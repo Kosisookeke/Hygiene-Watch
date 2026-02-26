@@ -127,12 +127,15 @@ export default function TipView() {
         {user ? (
           <form onSubmit={handleComment} className={styles.commentForm}>
             <textarea
+              id="tip-comment"
+              name="comment"
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="Add a comment…"
               className={styles.commentInput}
               rows={3}
               disabled={posting}
+              aria-label="Add a comment"
             />
             <button type="submit" className={styles.commentBtn} disabled={posting || !commentText.trim()}>
               {posting ? 'Posting…' : 'Post'}

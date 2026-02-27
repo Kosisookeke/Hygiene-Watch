@@ -2,19 +2,16 @@ import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import Loader from '../components/Loader'
-import ResolveReportModal from '../components/ResolveReportModal'
 import {
   subscribeAllReports,
   subscribeAllTips,
   subscribeAllComments,
-  updateReportStatus,
   updateTipApproval,
   deleteComment,
 } from '../lib/firestore'
 import {
   IconFileText,
   IconLightbulb,
-  IconEye,
   IconCheck,
   IconX,
   IconTrash2,
@@ -61,7 +58,6 @@ export default function Admin() {
   const [reportDateFilter, setReportDateFilter] = useState('')
   const [tipCategoryFilter, setTipCategoryFilter] = useState('')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
-  const [resolveModalReport, setResolveModalReport] = useState<Report | null>(null)
 
   useEffect(() => {
     if (!isAdmin) return
@@ -104,15 +100,6 @@ export default function Admin() {
     }
     return list
   }, [tips, tipCategoryFilter])
-
-  async function handleUpdateReportStatus(id: string, status: Report['status']) {
-    setUpdatingId(id)
-    try {
-      await updateReportStatus(id, status)
-    } finally {
-      setUpdatingId(null)
-    }
-  }
 
   async function handleApproveTip(id: string) {
     setUpdatingId(id)
@@ -276,14 +263,6 @@ export default function Admin() {
                       <td>
                         <div className={adminStyles.actions}>
                           <Link
-                            to={`/reports/${r.id}`}
-                            className={adminStyles.actionBtn}
-                            aria-label="View"
-                            title="View"
-                          >
-                            <IconEye />
-                          </Link>
-                          <Link
                             to={`/reports/${r.id}/track`}
                             className={`${adminStyles.actionBtn} ${adminStyles.actionTrack}`}
                             aria-label="Track report"
@@ -291,90 +270,6 @@ export default function Admin() {
                           >
                             <IconMapPin />
                           </Link>
-                          {r.status === 'pending' && (
-                            <>
-                              <button
-                                type="button"
-                                className={`${adminStyles.actionBtn} ${adminStyles.actionApprove}`}
-                                onClick={() => handleUpdateReportStatus(r.id, 'in_review')}
-                                disabled={updatingId === r.id}
-                                aria-label="Accept for review"
-                                title="Accept for review"
-                              >
-                                <IconCheck />
-                              </button>
-                              <button
-                                type="button"
-                                className={`${adminStyles.actionBtn} ${adminStyles.actionReject}`}
-                                onClick={() => handleUpdateReportStatus(r.id, 'rejected')}
-                                disabled={updatingId === r.id}
-                                aria-label="Reject"
-                                title="Reject"
-                              >
-                                <IconX />
-                              </button>
-                            </>
-                          )}
-                          {r.status === 'in_review' && (
-                            <>
-                              <button
-                                type="button"
-                                className={adminStyles.statusTextBtn}
-                                onClick={() => handleUpdateReportStatus(r.id, 'accepted')}
-                                disabled={updatingId === r.id}
-                                aria-label="Accept"
-                                title="Accept"
-                              >
-                                Accept
-                              </button>
-                              <button
-                                type="button"
-                                className={adminStyles.statusTextBtn}
-                                onClick={() => handleUpdateReportStatus(r.id, 'rejected')}
-                                disabled={updatingId === r.id}
-                                aria-label="Reject"
-                                title="Reject"
-                              >
-                                Reject
-                              </button>
-                            </>
-                          )}
-                          {r.status === 'accepted' && (
-                            <>
-                              <button
-                                type="button"
-                                className={adminStyles.statusTextBtn}
-                                onClick={() => handleUpdateReportStatus(r.id, 'in_progress')}
-                                disabled={updatingId === r.id}
-                                aria-label="Set in progress"
-                                title="In progress"
-                              >
-                                In Progress
-                              </button>
-                              <button
-                                type="button"
-                                className={adminStyles.statusTextBtn}
-                                onClick={() => setResolveModalReport(r)}
-                                disabled={updatingId === r.id}
-                                aria-label="Resolve"
-                                title="Resolve"
-                              >
-                                Resolve
-                              </button>
-                            </>
-                          )}
-                          {r.status === 'in_progress' && (
-                            <button
-                              type="button"
-                              className={adminStyles.statusTextBtn}
-                              onClick={() => setResolveModalReport(r)}
-                              disabled={updatingId === r.id}
-                              aria-label="Resolve"
-                              title="Resolve"
-                            >
-                              Resolve
-                            </button>
-                          )}
                         </div>
                       </td>
                     </tr>
@@ -542,15 +437,6 @@ export default function Admin() {
           )}
         </article>
       ) : null}
-
-      {resolveModalReport && (
-        <ResolveReportModal
-          reportId={resolveModalReport.id}
-          reportTitle={resolveModalReport.title}
-          onClose={() => setResolveModalReport(null)}
-          onResolved={() => setResolveModalReport(null)}
-        />
-      )}
     </div>
   )
 }

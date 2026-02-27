@@ -162,11 +162,11 @@ export default function Admin() {
 
       {/* Metric Cards */}
       <div className={adminStyles.metricsGrid}>
-        <article className={`${styles.featureCard} ${adminStyles.metricCard} ${adminStyles.metricOrange}`}>
+        <article className={`${styles.featureCard} ${adminStyles.metricCard} ${adminStyles.metricGreen}`}>
           <h3 className={adminStyles.metricTitle}>Pending Reports</h3>
           <p className={adminStyles.metricValue}>{pendingReports.length}</p>
         </article>
-        <article className={`${styles.featureCard} ${adminStyles.metricCard} ${adminStyles.metricBlue}`}>
+        <article className={`${styles.featureCard} ${adminStyles.metricCard} ${adminStyles.metricGreen}`}>
           <h3 className={adminStyles.metricTitle}>Pending Tips</h3>
           <p className={adminStyles.metricValue}>{pendingTips.length}</p>
         </article>
@@ -174,7 +174,7 @@ export default function Admin() {
           <h3 className={adminStyles.metricTitle}>Approved Today</h3>
           <p className={adminStyles.metricValue}>{approvedToday}</p>
         </article>
-        <article className={`${styles.featureCard} ${adminStyles.metricCard} ${adminStyles.metricRed}`}>
+        <article className={`${styles.featureCard} ${adminStyles.metricCard} ${adminStyles.metricGreen}`}>
           <h3 className={adminStyles.metricTitle}>Comments</h3>
           <p className={adminStyles.metricValue}>{commentsCount}</p>
         </article>

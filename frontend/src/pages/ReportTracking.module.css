@@ -145,7 +145,7 @@
 }
 
 .trackBtn:hover {
-  background: #15803d;
+  background: var(--color-primary-dark);
   transform: translateY(-1px);
 }
 

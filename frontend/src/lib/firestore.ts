@@ -472,14 +472,13 @@ export async function resolveReport(
     timestamp: now,
     description: 'Report resolved',
   }
-  const payload: Record<string, unknown> = {
+  await updateDoc(doc(db, REPORTS_COLLECTION, reportId), {
     status: 'resolved',
     updatedAt: now,
     statusHistory: arrayUnion(entry),
     resolutionFeedback: options.feedback.trim(),
-  }
-  if (options.photoUrl) payload.resolutionPhotoUrl = options.photoUrl
-  await updateDoc(doc(db, REPORTS_COLLECTION, reportId), payload)
+    ...(options.photoUrl && { resolutionPhotoUrl: options.photoUrl }),
+  })
 }
 
 export async function updateTipApproval(tipId: string, approved: boolean): Promise<void> {

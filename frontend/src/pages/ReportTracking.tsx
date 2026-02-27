@@ -82,8 +82,6 @@ export default function ReportTracking() {
     setUpdating(true)
     try {
       await updateReportStatus(id, status)
-      const updated = await getReport(id)
-      if (updated) setReport(updated)
     } finally {
       setUpdating(false)
     }

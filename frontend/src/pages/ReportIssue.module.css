@@ -35,6 +35,16 @@
   font-size: 0.95rem;
 }
 
+.success .trackLink {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.success .trackLink:hover {
+  color: var(--color-primary-dark);
+}
+
 .error {
   color: #b91c1c;
   margin-bottom: 1rem;

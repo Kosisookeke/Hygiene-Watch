@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { getReport } from '../lib/firestore'
+import { subscribeReport } from '../lib/firestore'
 import Loader from '../components/Loader'
 import ReportTrackerBar from '../components/ReportTrackerBar'
 import type { Report } from '../lib/types'
@@ -28,20 +28,14 @@ export default function ReportView() {
 
   useEffect(() => {
     if (!id) return
-    let mounted = true
     setLoading(true)
     setError(null)
-    getReport(id)
-      .then((r) => {
-        if (mounted) setReport(r ?? null)
-      })
-      .catch(() => {
-        if (mounted) setError('Failed to load report')
-      })
-      .finally(() => {
-        if (mounted) setLoading(false)
-      })
-    return () => { mounted = false }
+    const unsub = subscribeReport(id, (r) => {
+      setReport(r ?? null)
+      setLoading(false)
+      if (!r) setError('Report not found')
+    })
+    return () => unsub?.()
   }, [id])
 
   if (!id) {
@@ -91,6 +85,20 @@ export default function ReportView() {
         )}
         {report.photoUrl && (
           <img src={report.photoUrl} alt="Report" className={styles.photo} />
+        )}
+        {report.status === 'resolved' && (report.resolutionFeedback || report.resolutionPhotoUrl) && (
+          <section className={styles.resolutionSection}>
+            <h3 className={styles.resolutionTitle}>Resolution</h3>
+            <p className={styles.resolutionSubtitle}>The issue has been addressed</p>
+            {report.resolutionFeedback && (
+              <p className={styles.resolutionFeedback}>{report.resolutionFeedback}</p>
+            )}
+            {report.resolutionPhotoUrl && (
+              <div className={styles.resolutionPhotoWrap}>
+                <img src={report.resolutionPhotoUrl} alt="Resolution proof" className={styles.resolutionPhoto} />
+              </div>
+            )}
+          </section>
         )}
       </article>
     </div>

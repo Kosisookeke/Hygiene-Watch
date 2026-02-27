@@ -24,8 +24,8 @@ function relativeTime(s: string): string {
 }
 
 type ActivityLogItem =
-  | { kind: 'report'; id: string; title: string; createdAt: string; link: string }
-  | { kind: 'tip'; id: string; title: string; createdAt: string; link: string }
+  | { kind: 'report'; id: string; title: string; createdAt: string; link: string; trackLink: string }
+  | { kind: 'tip'; id: string; title: string; createdAt: string; link: string; trackLink?: undefined }
   | { kind: 'log'; id: string; description: string; createdAt: string }
 
 export default function Dashboard() {
@@ -55,6 +55,7 @@ export default function Dashboard() {
           title: item.title,
           createdAt: item.createdAt,
           link: `/reports/${item.id}`,
+          trackLink: `/reports/${item.id}/track`,
         })
       } else {
         items.push({
@@ -63,6 +64,7 @@ export default function Dashboard() {
           title: (item as Tip).title,
           createdAt: (item as Tip).createdAt,
           link: `/tips/${(item as Tip).id}`,
+          trackLink: undefined,
         })
       }
     })
@@ -174,9 +176,16 @@ export default function Dashboard() {
                     <span className={styles.activityTime}>{relativeTime(item.createdAt)}</span>
                   </div>
                   {(item.kind === 'report' || item.kind === 'tip') && (
-                    <Link to={item.link} className={styles.activityLink}>
-                      View
-                    </Link>
+                    <div className={styles.activityLinks}>
+                      {item.kind === 'report' && item.trackLink && (
+                        <Link to={item.trackLink} className={styles.activityLink}>
+                          Track
+                        </Link>
+                      )}
+                      <Link to={item.link} className={styles.activityLink}>
+                        View
+                      </Link>
+                    </div>
                   )}
                 </div>
               ))

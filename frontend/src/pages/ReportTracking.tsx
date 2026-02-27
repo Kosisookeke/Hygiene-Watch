@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { getReport } from '../lib/firestore'
+import { useAuth } from '../contexts/AuthContext'
+import { subscribeReport, updateReportStatus } from '../lib/firestore'
 import Loader from '../components/Loader'
 import ReportTrackerBar from '../components/ReportTrackerBar'
+import ResolveReportModal from '../components/ResolveReportModal'
 import type { Report, ReportStatusEntry } from '../lib/types'
 import styles from './ReportTracking.module.css'
 
@@ -67,26 +69,36 @@ function buildTimeline(report: Report): ReportStatusEntry[] {
 export default function ReportTracking() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { role } = useAuth()
+  const isAdmin = role === 'admin'
   const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [updating, setUpdating] = useState(false)
+  const [showResolveModal, setShowResolveModal] = useState(false)
+
+  async function handleUpdateStatus(status: Report['status']) {
+    if (!id) return
+    setUpdating(true)
+    try {
+      await updateReportStatus(id, status)
+      const updated = await getReport(id)
+      if (updated) setReport(updated)
+    } finally {
+      setUpdating(false)
+    }
+  }
 
   useEffect(() => {
     if (!id) return
-    let mounted = true
     setLoading(true)
     setError(null)
-    getReport(id)
-      .then((r) => {
-        if (mounted) setReport(r ?? null)
-      })
-      .catch(() => {
-        if (mounted) setError('Failed to load report')
-      })
-      .finally(() => {
-        if (mounted) setLoading(false)
-      })
-    return () => { mounted = false }
+    const unsub = subscribeReport(id, (r) => {
+      setReport(r ?? null)
+      setLoading(false)
+      if (!r) setError('Report not found')
+    })
+    return () => unsub?.()
   }, [id])
 
   if (!id) {
@@ -123,6 +135,84 @@ export default function ReportTracking() {
         </div>
       </header>
 
+      {isAdmin && report.status !== 'resolved' && report.status !== 'rejected' && (
+        <div className={styles.adminActions}>
+          <h3 className={styles.adminActionsTitle}>Update status</h3>
+          <div className={styles.adminActionsRow}>
+            {report.status === 'pending' && (
+              <>
+                <button
+                  type="button"
+                  className={styles.adminBtn}
+                  onClick={() => handleUpdateStatus('in_review')}
+                  disabled={updating}
+                >
+                  Under Review
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.adminBtn} ${styles.adminBtnReject}`}
+                  onClick={() => handleUpdateStatus('rejected')}
+                  disabled={updating}
+                >
+                  Reject
+                </button>
+              </>
+            )}
+            {report.status === 'in_review' && (
+              <>
+                <button
+                  type="button"
+                  className={styles.adminBtn}
+                  onClick={() => handleUpdateStatus('accepted')}
+                  disabled={updating}
+                >
+                  Accept
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.adminBtn} ${styles.adminBtnReject}`}
+                  onClick={() => handleUpdateStatus('rejected')}
+                  disabled={updating}
+                >
+                  Reject
+                </button>
+              </>
+            )}
+            {report.status === 'accepted' && (
+              <>
+                <button
+                  type="button"
+                  className={styles.adminBtn}
+                  onClick={() => handleUpdateStatus('in_progress')}
+                  disabled={updating}
+                >
+                  In Progress
+                </button>
+                <button
+                  type="button"
+                  className={styles.adminBtn}
+                  onClick={() => setShowResolveModal(true)}
+                  disabled={updating}
+                >
+                  Resolve
+                </button>
+              </>
+            )}
+            {report.status === 'in_progress' && (
+              <button
+                type="button"
+                className={styles.adminBtn}
+                onClick={() => setShowResolveModal(true)}
+                disabled={updating}
+              >
+                Resolve
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className={styles.timeline}>
         {timeline.map((entry, i) => (
           <div key={`${entry.status}-${entry.timestamp}-${i}`} className={styles.timelineItem}>
@@ -143,9 +233,33 @@ export default function ReportTracking() {
         ))}
       </div>
 
+      {report.status === 'resolved' && (report.resolutionFeedback || report.resolutionPhotoUrl) && (
+        <section className={styles.resolutionSection}>
+          <h3 className={styles.resolutionTitle}>Resolution</h3>
+          <p className={styles.resolutionSubtitle}>The issue has been addressed</p>
+          {report.resolutionFeedback && (
+            <p className={styles.resolutionFeedback}>{report.resolutionFeedback}</p>
+          )}
+          {report.resolutionPhotoUrl && (
+            <div className={styles.resolutionPhotoWrap}>
+              <img src={report.resolutionPhotoUrl} alt="Resolution proof" className={styles.resolutionPhoto} />
+            </div>
+          )}
+        </section>
+      )}
+
       <Link to={`/reports/${id}`} className={styles.trackBtn}>
         View Report Details
       </Link>
+
+      {showResolveModal && report && (
+        <ResolveReportModal
+          reportId={report.id}
+          reportTitle={report.title}
+          onClose={() => setShowResolveModal(false)}
+          onResolved={() => {}}
+        />
+      )}
     </div>
   )
 }

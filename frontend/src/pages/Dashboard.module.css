@@ -227,12 +227,17 @@
   color: #8a8a8a;
 }
 
+.activityLinks {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
 .activityLink {
   font-size: 0.85rem;
   color: #b8a067;
   font-weight: 600;
   text-decoration: none;
-  flex-shrink: 0;
 }
 
 .activityLink:hover {

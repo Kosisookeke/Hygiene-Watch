@@ -78,6 +78,8 @@ export interface Report {
   createdAt: string
   updatedAt: string
   statusHistory?: ReportStatusEntry[]
+  resolutionFeedback?: string
+  resolutionPhotoUrl?: string
 }
 
 export interface Comment {

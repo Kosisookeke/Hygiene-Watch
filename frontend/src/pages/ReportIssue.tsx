@@ -59,6 +59,7 @@ export default function ReportIssue() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [sent, setSent] = useState(false)
+  const [lastReportId, setLastReportId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [geocoding, setGeocoding] = useState(false)
   const [suggestions, setSuggestions] = useState<GeocodeResult[]>([])
@@ -170,7 +171,7 @@ export default function ReportIssue() {
         }
       }
       const title = `${category} - ${(location || 'Unspecified location').slice(0, 50)}`
-      await addReport({
+      const reportId = await addReport({
         title,
         description: description.trim(),
         category,
@@ -190,7 +191,11 @@ export default function ReportIssue() {
       setSuggestions([])
       setShowSuggestions(false)
       setSent(true)
-      setTimeout(() => setSent(false), 4000)
+      setLastReportId(reportId)
+      setTimeout(() => {
+        setSent(false)
+        setLastReportId(null)
+      }, 8000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit report')
     } finally {
@@ -212,7 +217,22 @@ export default function ReportIssue() {
   return (
     <div className={styles.page}>
       <form onSubmit={handleSubmit} className={styles.form}>
-        {sent && <p className={styles.success} role="status">Report submitted successfully.</p>}
+        {sent && (
+          <p className={styles.success} role="status">
+            Report submitted successfully.{' '}
+            {lastReportId && (
+              <>
+                <Link to={`/reports/${lastReportId}/track`} className={styles.trackLink}>
+                  Track your report →
+                </Link>
+                {' · '}
+                <Link to={`/reports/${lastReportId}`} className={styles.trackLink}>
+                  View details
+                </Link>
+              </>
+            )}
+          </p>
+        )}
         {error && <p className={styles.error} role="alert">{error}</p>}
         <div className={styles.twoCol}>
           <div className={styles.leftCol}>

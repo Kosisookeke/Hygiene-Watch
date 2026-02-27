@@ -33,8 +33,8 @@ function App() {
               <Route path="/tips" element={<HygieneTips />} />
               <Route path="/tips/:id" element={<TipView />} />
               <Route path="/report" element={<ProtectedRoute><ReportIssue /></ProtectedRoute>} />
-              <Route path="/reports/:id" element={<ReportView />} />
-              <Route path="/reports/:id/track" element={<ReportTracking />} />
+              <Route path="/reports/:id" element={<ProtectedRoute><ReportView /></ProtectedRoute>} />
+              <Route path="/reports/:id/track" element={<ProtectedRoute><ReportTracking /></ProtectedRoute>} />
               <Route path="/my-logs" element={<ProtectedRoute><MyLogs /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/profile/account-settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />

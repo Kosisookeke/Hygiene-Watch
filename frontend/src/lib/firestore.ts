@@ -75,6 +75,8 @@ function docToReport(d: { id: string; data: () => Record<string, unknown> }): Re
     createdAt: (data.createdAt as string) ?? '',
     updatedAt: (data.updatedAt as string) ?? '',
     statusHistory: parseStatusHistory(data.statusHistory),
+    resolutionFeedback: data.resolutionFeedback as string | undefined,
+    resolutionPhotoUrl: data.resolutionPhotoUrl as string | undefined,
   }
 }
 
@@ -203,29 +205,24 @@ export function subscribeReportsByUser(
   callback: (reports: Report[]) => void
 ): Unsubscribe | null {
   if (!hasFirebaseConfig || !db) return null
-  let cancelled = false
-  const run = async () => {
-    if (cancelled) return
-    try {
-      const q = query(
-        collection(db, REPORTS_COLLECTION),
-        where('submittedById', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(50)
-      )
-      const snap = await getDocs(q)
+  const q = query(
+    collection(db, REPORTS_COLLECTION),
+    where('submittedById', '==', userId),
+    orderBy('createdAt', 'desc'),
+    limit(50)
+  )
+  const unsub = onSnapshot(
+    q,
+    (snap) => {
       const reports = snap.docs.map(docToReport)
-      if (!cancelled) callback(reports)
-    } catch {
-      if (!cancelled) callback([])
+      callback(reports)
+    },
+    (err) => {
+      console.error('subscribeReportsByUser error:', err)
+      callback([])
     }
-  }
-  run()
-  const timer = setInterval(run, POLL_MS)
-  return () => {
-    cancelled = true
-    clearInterval(timer)
-  }
+  )
+  return () => unsub()
 }
 
 /** Recent activity (community-wide): all reports + approved tips, sorted by createdAt desc */
@@ -464,6 +461,27 @@ export async function updateReportStatus(
   })
 }
 
+export async function resolveReport(
+  reportId: string,
+  options: { feedback: string; photoUrl?: string }
+): Promise<void> {
+  if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
+  const now = new Date().toISOString()
+  const entry: ReportStatusEntry = {
+    status: 'resolved',
+    timestamp: now,
+    description: 'Report resolved',
+  }
+  const payload: Record<string, unknown> = {
+    status: 'resolved',
+    updatedAt: now,
+    statusHistory: arrayUnion(entry),
+    resolutionFeedback: options.feedback.trim(),
+  }
+  if (options.photoUrl) payload.resolutionPhotoUrl = options.photoUrl
+  await updateDoc(doc(db, REPORTS_COLLECTION, reportId), payload)
+}
+
 export async function updateTipApproval(tipId: string, approved: boolean): Promise<void> {
   if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
   await updateDoc(doc(db, TIPS_COLLECTION, tipId), {
@@ -472,28 +490,56 @@ export async function updateTipApproval(tipId: string, approved: boolean): Promi
   })
 }
 
+function docDataToReport(id: string, data: Record<string, unknown>): Report {
+  return {
+    id,
+    title: (data.title as string) ?? '',
+    description: (data.description as string) ?? '',
+    category: data.category as Report['category'],
+    location: data.location as string | undefined,
+    photoUrl: data.photoUrl as string | undefined,
+    lat: data.lat as number | undefined,
+    lng: data.lng as number | undefined,
+    status: (data.status as Report['status']) ?? 'pending',
+    submittedBy: (data.submittedBy as string) ?? '',
+    submittedById: (data.submittedById as string) ?? '',
+    createdAt: (data.createdAt as string) ?? '',
+    updatedAt: (data.updatedAt as string) ?? '',
+    statusHistory: parseStatusHistory(data.statusHistory),
+    resolutionFeedback: data.resolutionFeedback as string | undefined,
+    resolutionPhotoUrl: data.resolutionPhotoUrl as string | undefined,
+  }
+}
+
+/** Subscribe to real-time report updates. Returns unsubscribe function. */
+export function subscribeReport(
+  reportId: string,
+  callback: (report: Report | null) => void
+): Unsubscribe | null {
+  if (!hasFirebaseConfig || !db) return null
+  const unsub = onSnapshot(
+    doc(db, REPORTS_COLLECTION, reportId),
+    (snap) => {
+      if (!snap.exists()) {
+        callback(null)
+        return
+      }
+      callback(docDataToReport(snap.id, snap.data()))
+    },
+    (err) => {
+      console.error('subscribeReport error:', err)
+      callback(null)
+    }
+  )
+  return () => unsub()
+}
+
 export async function getReport(id: string): Promise<Report | null> {
   if (!hasFirebaseConfig || !db) return null
   try {
     const snap = await getDoc(doc(db, REPORTS_COLLECTION, id))
     if (!snap.exists()) return null
-    const data = snap.data()
-    return {
-      id: snap.id,
-      title: (data.title as string) ?? '',
-      description: (data.description as string) ?? '',
-      category: data.category as Report['category'],
-      location: data.location as string | undefined,
-      photoUrl: data.photoUrl as string | undefined,
-      lat: data.lat as number | undefined,
-      lng: data.lng as number | undefined,
-      status: (data.status as Report['status']) ?? 'pending',
-      submittedBy: (data.submittedBy as string) ?? '',
-      submittedById: (data.submittedById as string) ?? '',
-      createdAt: (data.createdAt as string) ?? '',
-      updatedAt: (data.updatedAt as string) ?? '',
-      statusHistory: parseStatusHistory(data.statusHistory),
-    }
+    return docDataToReport(snap.id, snap.data())
   } catch {
     return null
   }

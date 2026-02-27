@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import Loader from '../components/Loader'
+import ResolveReportModal from '../components/ResolveReportModal'
 import {
   subscribeAllReports,
   subscribeAllTips,
@@ -18,6 +19,7 @@ import {
   IconX,
   IconTrash2,
   IconMail,
+  IconMapPin,
 } from '../components/Icons'
 import type { Report, Tip, Comment } from '../lib/types'
 import styles from './Dashboard.module.css'
@@ -59,6 +61,7 @@ export default function Admin() {
   const [reportDateFilter, setReportDateFilter] = useState('')
   const [tipCategoryFilter, setTipCategoryFilter] = useState('')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [resolveModalReport, setResolveModalReport] = useState<Report | null>(null)
 
   useEffect(() => {
     if (!isAdmin) return
@@ -280,6 +283,14 @@ export default function Admin() {
                           >
                             <IconEye />
                           </Link>
+                          <Link
+                            to={`/reports/${r.id}/track`}
+                            className={`${adminStyles.actionBtn} ${adminStyles.actionTrack}`}
+                            aria-label="Track report"
+                            title="Track report"
+                          >
+                            <IconMapPin />
+                          </Link>
                           {r.status === 'pending' && (
                             <>
                               <button
@@ -343,7 +354,7 @@ export default function Admin() {
                               <button
                                 type="button"
                                 className={adminStyles.statusTextBtn}
-                                onClick={() => handleUpdateReportStatus(r.id, 'resolved')}
+                                onClick={() => setResolveModalReport(r)}
                                 disabled={updatingId === r.id}
                                 aria-label="Resolve"
                                 title="Resolve"
@@ -356,7 +367,7 @@ export default function Admin() {
                             <button
                               type="button"
                               className={adminStyles.statusTextBtn}
-                              onClick={() => handleUpdateReportStatus(r.id, 'resolved')}
+                              onClick={() => setResolveModalReport(r)}
                               disabled={updatingId === r.id}
                               aria-label="Resolve"
                               title="Resolve"
@@ -531,6 +542,15 @@ export default function Admin() {
           )}
         </article>
       ) : null}
+
+      {resolveModalReport && (
+        <ResolveReportModal
+          reportId={resolveModalReport.id}
+          reportTitle={resolveModalReport.title}
+          onClose={() => setResolveModalReport(null)}
+          onResolved={() => setResolveModalReport(null)}
+        />
+      )}
     </div>
   )
 }

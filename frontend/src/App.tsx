@@ -14,6 +14,7 @@ import Profile from './pages/Profile'
 import AccountSettings from './pages/AccountSettings'
 import PrivacySettings from './pages/PrivacySettings'
 import Admin from './pages/Admin'
+import Inspector from './pages/Inspector'
 import SignUp from './pages/SignUp'
 import LogIn from './pages/LogIn'
 import ForgotPassword from './pages/ForgotPassword'
@@ -40,6 +41,7 @@ function App() {
               <Route path="/profile/account-settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
               <Route path="/profile/privacy-settings" element={<ProtectedRoute><PrivacySettings /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
+              <Route path="/inspector" element={<ProtectedRoute requiredRole="inspector"><Inspector /></ProtectedRoute>} />
             </Routes>
           </ErrorBoundary>
         </Layout>

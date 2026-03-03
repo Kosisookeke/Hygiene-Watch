@@ -25,14 +25,16 @@ const DEFAULT_ROLE: AppRole = 'user'
 
 function profileFromDoc(id: string, data: Record<string, unknown> | undefined): Profile | null {
   if (!data) return null
+  const role = (data.role as Profile['role']) ?? 'user'
   return {
     id,
     full_name: (data.full_name as string) ?? null,
     email: (data.email as string) ?? null,
-    role: (data.role === 'admin' || data.role === 'inspector' ? 'admin' : 'user') as AppRole,
+    role,
     created_at: (data.created_at as string) ?? '',
     updated_at: (data.updated_at as string) ?? '',
     location: (data.location as string) ?? null,
+    assignedRegion: (data.assignedRegion as Profile['assignedRegion']) ?? null,
     phone: (data.phone as string) ?? null,
     about_me: (data.about_me as string) ?? null,
     avatar_url: (data.avatar_url as string) ?? null,

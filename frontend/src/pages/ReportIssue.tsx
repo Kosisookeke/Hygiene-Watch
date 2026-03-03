@@ -8,7 +8,8 @@ import { searchAddressSuggestions } from '../lib/geocode'
 import type { GeocodeResult } from '../lib/geocode'
 import { uploadImage, hasCloudinaryConfig } from '../lib/cloudinary'
 import { IconMapPin, IconCamera, IconUpload } from '../components/Icons'
-import type { ReportIssueCategory } from '../lib/types'
+import type { ReportIssueCategory, InspectionRegion } from '../lib/types'
+import { INSPECTION_REGIONS } from '../lib/types'
 import styles from './ReportIssue.module.css'
 import 'leaflet/dist/leaflet.css'
 
@@ -53,6 +54,7 @@ export default function ReportIssue() {
   const { user, profile } = useAuth()
   const [description, setDescription] = useState('')
   const [location, setLocation] = useState('')
+  const [region, setRegion] = useState<InspectionRegion>('lagos_nigeria')
   const [category, setCategory] = useState<ReportIssueCategory>('Waste Management')
   const [mapPosition, setMapPosition] = useState<[number, number] | null>(null)
   const [photo, setPhoto] = useState<File | null>(null)
@@ -176,6 +178,7 @@ export default function ReportIssue() {
         description: description.trim(),
         category,
         location: location.trim() || undefined,
+        region,
         photoUrl,
         lat: mapPosition?.[0],
         lng: mapPosition?.[1],
@@ -289,6 +292,23 @@ export default function ReportIssue() {
                   </button>
                 </div>
                 <p className={styles.helper}>Select from suggestions or click map to set location.</p>
+              </div>
+
+              <div className={styles.field}>
+                <label htmlFor="report-region">Region</label>
+                <select
+                  id="report-region"
+                  name="region"
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value as InspectionRegion)}
+                  className={styles.select}
+                  aria-label="Select report region"
+                >
+                  {INSPECTION_REGIONS.map((r) => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
+                  ))}
+                </select>
+                <p className={styles.helper}>Reports are assigned to inspectors in this region.</p>
               </div>
 
               <div className={styles.field}>

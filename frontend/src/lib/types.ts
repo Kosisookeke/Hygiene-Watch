@@ -1,6 +1,14 @@
 import type { User } from 'firebase/auth'
 
-export type AppRole = 'user' | 'admin'
+export type AppRole = 'user' | 'admin' | 'inspector'
+
+/** Supported inspection regions (extensible) */
+export const INSPECTION_REGIONS = [
+  { value: 'lagos_nigeria', label: 'Lagos, Nigeria' },
+  { value: 'kigali_rwanda', label: 'Kigali, Rwanda' },
+] as const
+
+export type InspectionRegion = (typeof INSPECTION_REGIONS)[number]['value']
 
 export interface Profile {
   id: string
@@ -10,6 +18,8 @@ export interface Profile {
   created_at: string
   updated_at: string
   location?: string | null
+  /** Inspector-only: assigned region for location-based report visibility */
+  assignedRegion?: InspectionRegion | null
   phone?: string | null
   about_me?: string | null
   avatar_url?: string | null
@@ -69,6 +79,8 @@ export interface Report {
   description: string
   category?: ReportIssueCategory
   location?: string
+  /** Region for inspector assignment (e.g. lagos_nigeria, kigali_rwanda) */
+  region?: InspectionRegion
   photoUrl?: string
   lat?: number
   lng?: number

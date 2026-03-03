@@ -13,7 +13,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/profile': 'Profile',
   '/profile/account-settings': 'Settings',
   '/profile/privacy-settings': 'Privacy Settings',
-  '/admin': 'Admin Inspector Dashboard',
+  '/admin': 'Admin Dashboard',
+  '/inspector': 'Inspector Dashboard',
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

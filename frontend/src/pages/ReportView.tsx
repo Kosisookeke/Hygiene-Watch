@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import { subscribeReport } from '../lib/firestore'
 import Loader from '../components/Loader'
 import ReportTrackerBar from '../components/ReportTrackerBar'
@@ -22,6 +23,7 @@ function formatDate(s: string): string {
 export default function ReportView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { role, profile } = useAuth()
   const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -56,9 +58,24 @@ export default function ReportView() {
     )
   }
 
+  if (role === 'inspector' && report.region !== profile?.assignedRegion) {
+    return (
+      <div className={styles.page}>
+        <p className={styles.error}>You do not have access to reports outside your assigned region.</p>
+        <Link to="/inspector">← Back to Inspector Dashboard</Link>
+      </div>
+    )
+  }
+
+  const backLink = role === 'inspector' ? (
+    <Link to="/inspector" className={styles.back}>← Back to Inspector Dashboard</Link>
+  ) : (
+    <Link to="/my-logs" className={styles.back}>← Back to My Logs</Link>
+  )
+
   return (
     <div className={styles.page}>
-      <Link to="/my-logs" className={styles.back}>← Back to My Logs</Link>
+      {backLink}
 
       <div className={styles.trackerSection}>
         <ReportTrackerBar report={report} />

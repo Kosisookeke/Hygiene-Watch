@@ -69,8 +69,10 @@ function buildTimeline(report: Report): ReportStatusEntry[] {
 export default function ReportTracking() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { role } = useAuth()
+  const { role, profile } = useAuth()
   const isAdmin = role === 'admin'
+  const isInspector = role === 'inspector'
+  const canManageReport = isAdmin || (isInspector && report?.region === profile?.assignedRegion)
   const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -117,6 +119,15 @@ export default function ReportTracking() {
     )
   }
 
+  if (isInspector && report.region !== profile?.assignedRegion) {
+    return (
+      <div className={styles.page}>
+        <p className={styles.error}>You do not have access to reports outside your assigned region.</p>
+        <Link to="/inspector">← Back to Inspector Dashboard</Link>
+      </div>
+    )
+  }
+
   const timeline = buildTimeline(report)
 
   return (
@@ -133,7 +144,7 @@ export default function ReportTracking() {
         </div>
       </header>
 
-      {isAdmin && report.status !== 'resolved' && report.status !== 'rejected' && (
+      {canManageReport && report.status !== 'resolved' && report.status !== 'rejected' && (
         <div className={styles.adminActions}>
           <h3 className={styles.adminActionsTitle}>Update status</h3>
           <div className={styles.adminActionsRow}>

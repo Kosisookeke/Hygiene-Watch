@@ -6,8 +6,10 @@ import {
   subscribeAllReports,
   subscribeAllTips,
   subscribeAllComments,
+  subscribeAllProfiles,
   updateTipApproval,
   deleteComment,
+  updateProfileRole,
 } from '../lib/firestore'
 import {
   IconFileText,
@@ -17,8 +19,11 @@ import {
   IconTrash2,
   IconMail,
   IconMapPin,
+  IconEye,
+  IconUser,
 } from '../components/Icons'
-import type { Report, Tip, Comment } from '../lib/types'
+import type { Report, Tip, Comment, Profile } from '../lib/types'
+import { INSPECTION_REGIONS } from '../lib/types'
 import styles from './Dashboard.module.css'
 import adminStyles from './Admin.module.css'
 
@@ -52,25 +57,30 @@ export default function Admin() {
   const [tips, setTips] = useState<Tip[]>([])
   const [comments, setComments] = useState<Comment[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'reports' | 'tips' | 'comments'>('reports')
+  const [activeTab, setActiveTab] = useState<'reports' | 'tips' | 'comments' | 'users'>('reports')
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null)
   const [reportCategoryFilter, setReportCategoryFilter] = useState('')
   const [reportDateFilter, setReportDateFilter] = useState('')
   const [tipCategoryFilter, setTipCategoryFilter] = useState('')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [profiles, setProfiles] = useState<Profile[]>([])
+  const [updatingProfileId, setUpdatingProfileId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!isAdmin) return
     const unsubReports = subscribeAllReports(setReports)
     const unsubTips = subscribeAllTips(setTips)
     const unsubComments = subscribeAllComments(setComments)
+    const unsubProfiles = subscribeAllProfiles(setProfiles)
     setLoading(false)
     return () => {
       unsubReports?.()
       unsubTips?.()
       unsubComments?.()
+      unsubProfiles?.()
     }
   }, [isAdmin])
+
 
   const pendingReports = reports.filter((r) => r.status === 'pending')
   const pendingTips = tips.filter((t) => !t.approved)
@@ -125,6 +135,19 @@ export default function Admin() {
       await deleteComment(id)
     } finally {
       setDeletingCommentId(null)
+    }
+  }
+
+  async function handleUpdateProfileRole(
+    userId: string,
+    role: Profile['role'],
+    assignedRegion?: Profile['assignedRegion']
+  ) {
+    setUpdatingProfileId(userId)
+    try {
+      await updateProfileRole(userId, { role, assignedRegion })
+    } finally {
+      setUpdatingProfileId(null)
     }
   }
 
@@ -195,6 +218,14 @@ export default function Admin() {
         >
           <IconMail />
           Comments
+        </button>
+        <button
+          type="button"
+          className={`${adminStyles.tab} ${activeTab === 'users' ? adminStyles.tabActive : ''}`}
+          onClick={() => setActiveTab('users')}
+        >
+          <IconUser />
+          User Management
         </button>
       </div>
 
@@ -434,6 +465,88 @@ export default function Admin() {
           )}
           {!loading && comments.length === 0 && (
             <p className={adminStyles.empty}>No comments yet.</p>
+          )}
+        </article>
+      ) : activeTab === 'users' ? (
+        <article className={`${styles.featureCard} ${adminStyles.tableCard}`}>
+          <div className={adminStyles.sectionHeader}>
+            <div>
+              <h3 className={styles.cardTitle}>User Management</h3>
+              <p className={adminStyles.sectionDesc}>Assign inspector role and region to users</p>
+            </div>
+          </div>
+          {loading ? (
+            <Loader />
+          ) : (
+            <div className={adminStyles.tableWrap}>
+              <table className={adminStyles.table}>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Assigned Region</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {profiles.map((p) => (
+                    <tr key={p.id}>
+                      <td>{p.full_name ?? '—'}</td>
+                      <td>{p.email ?? '—'}</td>
+                      <td><span className={adminStyles.tag}>{p.role}</span></td>
+                      <td>
+                        <select
+                          value={p.role === 'inspector' ? (p.assignedRegion ?? 'lagos_nigeria') : ''}
+                          onChange={(e) => {
+                            const region = e.target.value as Profile['assignedRegion']
+                            if (region) {
+                              handleUpdateProfileRole(p.id, 'inspector', region)
+                            }
+                          }}
+                          disabled={updatingProfileId === p.id || p.role !== 'inspector'}
+                          className={adminStyles.filterSelect}
+                          style={{ minWidth: 140 }}
+                          aria-label={`Assign region for ${p.full_name ?? p.email}`}
+                          title={p.role !== 'inspector' ? 'Assign inspector role first' : 'Select region'}
+                        >
+                          <option value="">{p.role === 'inspector' ? 'Select region…' : '—'}</option>
+                          {INSPECTION_REGIONS.map((r) => (
+                            <option key={r.value} value={r.value}>{r.label}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <div className={adminStyles.actions}>
+                          <select
+                            value={p.role}
+                            onChange={(e) => {
+                              const newRole = e.target.value as Profile['role']
+                              if (newRole === 'inspector') {
+                                handleUpdateProfileRole(p.id, 'inspector', p.assignedRegion ?? 'lagos_nigeria')
+                              } else {
+                                handleUpdateProfileRole(p.id, newRole)
+                              }
+                            }}
+                            disabled={updatingProfileId === p.id}
+                            className={adminStyles.filterSelect}
+                            style={{ minWidth: 100 }}
+                            aria-label={`Change role for ${p.full_name ?? p.email}`}
+                          >
+                            <option value="user">User</option>
+                            <option value="inspector">Inspector</option>
+                            <option value="admin">Admin</option>
+                          </select>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {!loading && profiles.length === 0 && (
+            <p className={adminStyles.empty}>No users found.</p>
           )}
         </article>
       ) : null}

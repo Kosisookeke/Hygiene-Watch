@@ -37,8 +37,11 @@ export default function Header() {
                 <Link to="/report" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Report Issue</Link>
                 <Link to="/my-logs" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>My Logs</Link>
                 <Link to="/profile" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Profile</Link>
+                {role === 'inspector' && (
+                  <Link to="/inspector" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Inspector</Link>
+                )}
                 {role === 'admin' && (
-                  <Link to="/admin" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Admin Inspector</Link>
+                  <Link to="/admin" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>Admin</Link>
                 )}
               </>
             )}

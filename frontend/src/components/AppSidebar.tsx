@@ -30,7 +30,8 @@ export default function AppSidebar({ isOpen = false, onClose, onNavigate }: AppS
   const { role } = useAuth()
   const navItems = [
     ...baseNavItems,
-    ...(role === 'admin' ? [{ to: '/admin', label: 'Admin Inspector', Icon: IconSettings }] : []),
+    ...(role === 'inspector' ? [{ to: '/inspector', label: 'Inspector Dashboard', Icon: IconSettings }] : []),
+    ...(role === 'admin' ? [{ to: '/admin', label: 'Admin Dashboard', Icon: IconSettings }] : []),
   ]
 
   return (

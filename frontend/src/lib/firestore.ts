@@ -15,12 +15,13 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore'
 import { db, hasFirebaseConfig } from './firebase'
-import type { Tip, Report, Comment, TipCategory, ReportIssueCategory, ReportStatusEntry } from './types'
+import type { Tip, Report, Comment, TipCategory, ReportIssueCategory, ReportStatusEntry, Profile, InspectionRegion } from './types'
 
 const TIPS_COLLECTION = 'tips'
 const REPORTS_COLLECTION = 'reports'
 const COMMENTS_COLLECTION = 'comments'
 const ACTIVITY_LOG_COLLECTION = 'activity_log'
+const PROFILES_COLLECTION = 'profiles'
 
 export type ActivityAction =
   | 'tip_submitted'
@@ -66,6 +67,7 @@ function docToReport(d: { id: string; data: () => Record<string, unknown> }): Re
     description: (data.description as string) ?? '',
     category: data.category as ReportIssueCategory | undefined,
     location: data.location as string | undefined,
+    region: data.region as Report['region'],
     photoUrl: data.photoUrl as string | undefined,
     lat: data.lat as number | undefined,
     lng: data.lng as number | undefined,
@@ -407,6 +409,37 @@ export function subscribeAllReports(callback: (reports: Report[]) => void): Unsu
   }
 }
 
+/** Inspector: subscribe to reports in a specific region only (backend-filtered) */
+export function subscribeReportsByRegion(
+  region: InspectionRegion,
+  callback: (reports: Report[]) => void
+): Unsubscribe | null {
+  if (!hasFirebaseConfig || !db) return null
+  let cancelled = false
+  const run = async () => {
+    if (cancelled) return
+    try {
+      const q = query(
+        collection(db, REPORTS_COLLECTION),
+        where('region', '==', region),
+        orderBy('createdAt', 'desc'),
+        limit(200)
+      )
+      const snap = await getDocs(q)
+      const reports = snap.docs.map(docToReport)
+      if (!cancelled) callback(reports)
+    } catch {
+      if (!cancelled) callback([])
+    }
+  }
+  run()
+  const timer = setInterval(run, POLL_MS)
+  return () => {
+    cancelled = true
+    clearInterval(timer)
+  }
+}
+
 /** Admin: subscribe to all tips (including unapproved) */
 export function subscribeAllTips(callback: (tips: Tip[]) => void): Unsubscribe | null {
   if (!hasFirebaseConfig || !db) return null
@@ -496,6 +529,7 @@ function docDataToReport(id: string, data: Record<string, unknown>): Report {
     description: (data.description as string) ?? '',
     category: data.category as Report['category'],
     location: data.location as string | undefined,
+    region: data.region as Report['region'],
     photoUrl: data.photoUrl as string | undefined,
     lat: data.lat as number | undefined,
     lng: data.lng as number | undefined,
@@ -549,6 +583,7 @@ export async function addReport(data: {
   description: string
   category?: string
   location?: string
+  region?: InspectionRegion
   photoUrl?: string
   lat?: number
   lng?: number
@@ -575,6 +610,7 @@ export async function addReport(data: {
     }
     if (data.category != null) payload.category = data.category
     if (data.location != null) payload.location = data.location
+    if (data.region != null) payload.region = data.region
     if (data.photoUrl != null) payload.photoUrl = data.photoUrl
     if (data.lat != null) payload.lat = data.lat
     if (data.lng != null) payload.lng = data.lng
@@ -677,4 +713,65 @@ export function subscribeAllComments(callback: (comments: Comment[]) => void): U
 export async function deleteComment(commentId: string): Promise<void> {
   if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
   await deleteDoc(doc(db, COMMENTS_COLLECTION, commentId))
+}
+
+// —— Profiles (Admin: user management) ————————————————————————————————————
+
+/** Admin: subscribe to all profiles for user management (all users in Firestore profiles collection) */
+export function subscribeAllProfiles(callback: (profiles: Profile[]) => void): Unsubscribe | null {
+  if (!hasFirebaseConfig || !db) return null
+  const q = query(collection(db, PROFILES_COLLECTION), limit(500))
+  const unsub = onSnapshot(
+    q,
+    (snap) => {
+      const profiles = snap.docs
+        .map((d) => {
+          const data = d.data()
+          return {
+            id: d.id,
+            full_name: (data.full_name as string) ?? null,
+            email: (data.email as string) ?? null,
+            role: (data.role as Profile['role']) ?? 'user',
+            created_at: (data.created_at as string) ?? '',
+            updated_at: (data.updated_at as string) ?? '',
+            location: (data.location as string) ?? null,
+            assignedRegion: (data.assignedRegion as Profile['assignedRegion']) ?? null,
+            phone: (data.phone as string) ?? null,
+            about_me: (data.about_me as string) ?? null,
+            avatar_url: (data.avatar_url as string) ?? null,
+            anonymous_tips: Boolean(data.anonymous_tips),
+          }
+        })
+        .sort((a, b) => {
+          const aTime = a.updated_at || a.created_at || ''
+          const bTime = b.updated_at || b.created_at || ''
+          return bTime.localeCompare(aTime)
+        })
+      callback(profiles)
+    },
+    (err) => {
+      console.error('[subscribeAllProfiles]', err)
+      callback([])
+    }
+  )
+  return () => unsub()
+}
+
+/** Admin: update a user's role and assigned region (for inspectors) */
+export async function updateProfileRole(
+  userId: string,
+  updates: { role: Profile['role']; assignedRegion?: InspectionRegion | null }
+): Promise<void> {
+  if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
+  const now = new Date().toISOString()
+  const payload: Record<string, unknown> = {
+    role: updates.role,
+    updated_at: now,
+  }
+  if (updates.role === 'inspector') {
+    payload.assignedRegion = updates.assignedRegion ?? null
+  } else {
+    payload.assignedRegion = null
+  }
+  await updateDoc(doc(db, PROFILES_COLLECTION, userId), payload)
 }

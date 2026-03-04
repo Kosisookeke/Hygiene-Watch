@@ -22,7 +22,9 @@ import {
   IconMapPin,
   IconEye,
   IconUser,
+  IconDownload,
 } from '../components/Icons'
+import { downloadAdminStatementPdf } from '../lib/adminPdfExport'
 import type { Report, Tip, Comment, Profile } from '../lib/types'
 import { INSPECTION_REGIONS } from '../lib/types'
 import styles from './Dashboard.module.css'
@@ -201,11 +203,24 @@ export default function Admin() {
     <div className={styles.page}>
       {/* Welcome Section */}
       <section className={styles.welcomeSection}>
-        <p className={styles.welcomeTagline}>Admin Dashboard</p>
-        <h2 className={styles.welcomeTitle}>Admin Dashboard</h2>
-        <p className={styles.welcomeDesc}>
-          Review and manage community hygiene reports and tips.
-        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+          <div>
+            <p className={styles.welcomeTagline}>Admin Dashboard</p>
+            <h2 className={styles.welcomeTitle}>Admin Dashboard</h2>
+            <p className={styles.welcomeDesc}>
+              Review and manage community hygiene reports and tips.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => downloadAdminStatementPdf(reports, tips, comments, profiles)}
+            className={adminStyles.downloadBtn}
+            aria-label="Download statement as PDF"
+          >
+            <IconDownload />
+            Download Statement (PDF)
+          </button>
+        </div>
       </section>
 
       {/* Metric Cards */}

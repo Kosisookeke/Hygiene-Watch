@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import Loader from '../components/Loader'
 import { subscribeReportsByRegion } from '../lib/firestore'
-import { IconFileText, IconMapPin } from '../components/Icons'
+import { IconMapPin, IconDownload } from '../components/Icons'
+import { downloadInspectorStatementPdf } from '../lib/adminPdfExport'
 import { INSPECTION_REGIONS } from '../lib/types'
 import type { Report } from '../lib/types'
 import styles from './Dashboard.module.css'
@@ -93,11 +94,24 @@ export default function Inspector() {
   return (
     <div className={styles.page}>
       <section className={styles.welcomeSection}>
-        <p className={styles.welcomeTagline}>Inspector Dashboard</p>
-        <h2 className={styles.welcomeTitle}>Reports in {regionLabel}</h2>
-        <p className={styles.welcomeDesc}>
-          Review and manage hygiene reports in your assigned region only.
-        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+          <div>
+            <p className={styles.welcomeTagline}>Inspector Dashboard</p>
+            <h2 className={styles.welcomeTitle}>Reports in {regionLabel}</h2>
+            <p className={styles.welcomeDesc}>
+              Review and manage hygiene reports in your assigned region only.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => downloadInspectorStatementPdf(reports, regionLabel)}
+            className={adminStyles.downloadBtn}
+            aria-label="Download statement as PDF"
+          >
+            <IconDownload />
+            Download Statement (PDF)
+          </button>
+        </div>
       </section>
 
       <div className={adminStyles.metricsGrid}>

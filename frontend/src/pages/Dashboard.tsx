@@ -197,7 +197,7 @@ export default function Dashboard() {
       {/* Inspector / Admin links (if applicable) */}
       {role === 'admin' && (
         <div className={styles.adminLinks}>
-          <Link to="/admin" className={styles.adminLink}>Admin Inspector Dashboard →</Link>
+          <Link to="/admin" className={styles.adminLink}>Admin Dashboard →</Link>
         </div>
       )}
 

@@ -201,8 +201,8 @@ export default function Admin() {
     <div className={styles.page}>
       {/* Welcome Section */}
       <section className={styles.welcomeSection}>
-        <p className={styles.welcomeTagline}>Admin Inspector Dashboard</p>
-        <h2 className={styles.welcomeTitle}>Inspector Dashboard</h2>
+        <p className={styles.welcomeTagline}>Admin Dashboard</p>
+        <h2 className={styles.welcomeTitle}>Admin Dashboard</h2>
         <p className={styles.welcomeDesc}>
           Review and manage community hygiene reports and tips.
         </p>

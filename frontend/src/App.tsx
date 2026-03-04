@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -20,6 +20,7 @@ import LogIn from './pages/LogIn'
 import ForgotPassword from './pages/ForgotPassword'
 
 function App() {
+  const location = useLocation()
   return (
     <Routes>
       <Route path="/signup" element={<SignUp />} />
@@ -27,7 +28,7 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/*" element={
         <Layout>
-          <ErrorBoundary>
+          <ErrorBoundary key={location.pathname}>
             <Routes>
               <Route path="/" element={<HomeOrDashboard />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

@@ -70,7 +70,7 @@ export default function MyLogs() {
 
   return (
     <div className={styles.page}>
-      
+
       {!user ? (
         <p className={styles.empty}>
           <Link to="/login">Log in</Link> to view your logs.

@@ -65,6 +65,16 @@ export default function Profile() {
 
   const hygieneScore = 50 // Placeholder - could be computed from reports/tips
 
+  const handleRefreshMetrics = async () => {
+    setRefreshingMetrics(true)
+    try {
+      await refreshProfile()
+      await new Promise((r) => setTimeout(r, 500))
+    } finally {
+      setRefreshingMetrics(false)
+    }
+  }
+
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !user) return
@@ -135,16 +145,6 @@ export default function Profile() {
 
   if (refreshingMetrics) {
     return <Loader />
-  }
-
-  const handleRefreshMetrics = async () => {
-    setRefreshingMetrics(true)
-    try {
-      await refreshProfile()
-      await new Promise((r) => setTimeout(r, 500))
-    } finally {
-      setRefreshingMetrics(false)
-    }
   }
 
   return (

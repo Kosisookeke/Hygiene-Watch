@@ -37,27 +37,17 @@ export default function Inspector() {
   const { role, profile } = useAuth()
   const assignedRegion = profile?.assignedRegion
 
-  if (role !== 'inspector') {
-    return (
-      <div className={styles.page}>
-        <section className={styles.welcomeSection}>
-          <h2 className={styles.welcomeTitle}>Access denied</h2>
-          <p className={styles.welcomeDesc}>This area is for inspectors only.</p>
-        </section>
-      </div>
-    )
-  }
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
   const [reportCategoryFilter, setReportCategoryFilter] = useState('')
   const [reportDateFilter, setReportDateFilter] = useState('')
 
   useEffect(() => {
-    if (!assignedRegion) return
+    if (!assignedRegion || role !== 'inspector') return
     const unsub = subscribeReportsByRegion(assignedRegion, setReports)
     setLoading(false)
     return () => unsub?.()
-  }, [assignedRegion])
+  }, [assignedRegion, role])
 
   const pendingReports = reports.filter((r) => r.status === 'pending')
   const today = new Date().toISOString().slice(0, 10)
@@ -77,6 +67,17 @@ export default function Inspector() {
   }, [reports, reportCategoryFilter, reportDateFilter])
 
   const regionLabel = INSPECTION_REGIONS.find((r) => r.value === assignedRegion)?.label ?? assignedRegion ?? '—'
+
+  if (role !== 'inspector') {
+    return (
+      <div className={styles.page}>
+        <section className={styles.welcomeSection}>
+          <h2 className={styles.welcomeTitle}>Access denied</h2>
+          <p className={styles.welcomeDesc}>This area is for inspectors only.</p>
+        </section>
+      </div>
+    )
+  }
 
   if (!assignedRegion) {
     return (

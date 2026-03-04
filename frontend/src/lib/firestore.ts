@@ -813,14 +813,9 @@ export async function updateProfileRole(
 ): Promise<void> {
   if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
   const now = new Date().toISOString()
-  const payload: Record<string, unknown> = {
+  await updateDoc(doc(db, PROFILES_COLLECTION, userId), {
     role: updates.role,
     updated_at: now,
-  }
-  if (updates.role === 'inspector') {
-    payload.assignedRegion = updates.assignedRegion ?? null
-  } else {
-    payload.assignedRegion = null
-  }
-  await updateDoc(doc(db, PROFILES_COLLECTION, userId), payload)
+    assignedRegion: updates.role === 'inspector' ? (updates.assignedRegion ?? null) : null,
+  })
 }

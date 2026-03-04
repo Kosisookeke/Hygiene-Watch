@@ -10,6 +10,7 @@ import {
   updateTipApproval,
   deleteComment,
   updateProfileRole,
+  assignRegionsToReports,
 } from '../lib/firestore'
 import {
   IconFileText,
@@ -50,6 +51,19 @@ function formatReportId(id: string): string {
   return `RPT-${id.slice(-6).toUpperCase()}`
 }
 
+function inferRegionFromText(text: string): 'kigali_rwanda' | 'lagos_nigeria' {
+  const lower = (text || '').toLowerCase()
+  if (lower.includes('kigali') || lower.includes('rwanda')) return 'kigali_rwanda'
+  if (lower.includes('lagos') || lower.includes('nigeria')) return 'lagos_nigeria'
+  return 'lagos_nigeria'
+}
+
+function inferNeedsUpdate(r: Report): boolean {
+  const text = [r.location, r.title, r.description].filter(Boolean).join(' ')
+  const inferred = inferRegionFromText(text)
+  return r.region !== inferred
+}
+
 export default function Admin() {
   const { role } = useAuth()
   const isAdmin = role === 'admin'
@@ -65,6 +79,7 @@ export default function Admin() {
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [updatingProfileId, setUpdatingProfileId] = useState<string | null>(null)
+  const [syncingRegions, setSyncingRegions] = useState(false)
 
   useEffect(() => {
     if (!isAdmin) return
@@ -80,6 +95,13 @@ export default function Admin() {
       unsubProfiles?.()
     }
   }, [isAdmin])
+
+  useEffect(() => {
+    if (!isAdmin || reports.length === 0) return
+    const needsRegion = reports.some((r) => !r.region || inferNeedsUpdate(r))
+    if (!needsRegion) return
+    assignRegionsToReports(reports).catch(console.error)
+  }, [isAdmin, reports])
 
 
   const pendingReports = reports.filter((r) => r.status === 'pending')
@@ -135,6 +157,19 @@ export default function Admin() {
       await deleteComment(id)
     } finally {
       setDeletingCommentId(null)
+    }
+  }
+
+  async function handleAssignRegions() {
+    setSyncingRegions(true)
+    try {
+      const count = await assignRegionsToReports(reports)
+      alert(`Assigned region to ${count} report(s) based on address. Kigali/Rwanda → Kigali inspectors. Lagos/Nigeria → Lagos inspectors.`)
+    } catch (err) {
+      console.error(err)
+      alert('Failed to assign regions')
+    } finally {
+      setSyncingRegions(false)
     }
   }
 
@@ -235,9 +270,19 @@ export default function Admin() {
           <div className={adminStyles.sectionHeader}>
             <div>
               <h3 className={styles.cardTitle}>Pending Sanitation Reports</h3>
-              <p className={adminStyles.sectionDesc}>Review and take action on submitted reports</p>
+              <p className={adminStyles.sectionDesc}>Review and take action on submitted reports. Assign regions from addresses so inspectors see reports in their area.</p>
             </div>
             <div className={adminStyles.filters}>
+              <button
+                type="button"
+                onClick={handleAssignRegions}
+                disabled={syncingRegions || reports.length === 0}
+                className={adminStyles.filterSelect}
+                style={{ padding: '8px 12px', cursor: syncingRegions ? 'wait' : 'pointer' }}
+                title="Assign region to each report from its address (Kigali/Rwanda or Lagos/Nigeria)"
+              >
+                {syncingRegions ? 'Assigning…' : 'Assign regions from addresses'}
+              </button>
               <select
                 id="admin-report-category"
                 name="reportCategory"

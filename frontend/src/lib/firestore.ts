@@ -409,7 +409,15 @@ export function subscribeAllReports(callback: (reports: Report[]) => void): Unsu
   }
 }
 
-/** Inspector: subscribe to reports in a specific region only (backend-filtered) */
+/** Infer region from location/title/description for filtering */
+function inferRegionFromReport(r: Report): InspectionRegion {
+  const text = [r.location, r.title, r.description].filter(Boolean).join(' ').toLowerCase()
+  if (text.includes('kigali') || text.includes('rwanda')) return 'kigali_rwanda'
+  if (text.includes('lagos') || text.includes('nigeria')) return 'lagos_nigeria'
+  return 'lagos_nigeria'
+}
+
+/** Inspector: subscribe to reports in a specific region. Uses region field when set, otherwise infers from address. */
 export function subscribeReportsByRegion(
   region: InspectionRegion,
   callback: (reports: Report[]) => void
@@ -421,14 +429,18 @@ export function subscribeReportsByRegion(
     try {
       const q = query(
         collection(db, REPORTS_COLLECTION),
-        where('region', '==', region),
         orderBy('createdAt', 'desc'),
         limit(200)
       )
       const snap = await getDocs(q)
-      const reports = snap.docs.map(docToReport)
-      if (!cancelled) callback(reports)
-    } catch {
+      const allReports = snap.docs.map(docToReport)
+      const filtered = allReports.filter((r) => {
+        const reportRegion = r.region ?? inferRegionFromReport(r)
+        return reportRegion === region
+      })
+      if (!cancelled) callback(filtered)
+    } catch (err) {
+      console.error('[subscribeReportsByRegion]', err)
       if (!cancelled) callback([])
     }
   }
@@ -474,6 +486,43 @@ const STATUS_DESCRIPTIONS: Record<Report['status'], string> = {
   in_progress: 'Report in progress',
   resolved: 'Report resolved',
   rejected: 'Report rejected',
+}
+
+export async function updateReportRegion(
+  reportId: string,
+  region: InspectionRegion
+): Promise<void> {
+  if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
+  await updateDoc(doc(db, REPORTS_COLLECTION, reportId), {
+    region,
+    updatedAt: new Date().toISOString(),
+  })
+}
+
+/** Infer region from location/title text */
+function inferRegionFromText(text: string): InspectionRegion {
+  const lower = (text || '').toLowerCase()
+  if (lower.includes('kigali') || lower.includes('rwanda')) return 'kigali_rwanda'
+  if (lower.includes('lagos') || lower.includes('nigeria')) return 'lagos_nigeria'
+  return 'lagos_nigeria'
+}
+
+/** Admin: assign region to reports based on location/title. Returns count updated. */
+export async function assignRegionsToReports(reports: Report[]): Promise<number> {
+  if (!hasFirebaseConfig || !db) return 0
+  let updated = 0
+  for (const r of reports) {
+    const text = [r.location, r.title, r.description].filter(Boolean).join(' ')
+    const inferred = inferRegionFromText(text)
+    if (r.region !== inferred) {
+      await updateReportRegion(r.id, inferred)
+      updated++
+    } else if (!r.region) {
+      await updateReportRegion(r.id, inferred)
+      updated++
+    }
+  }
+  return updated
 }
 
 export async function updateReportStatus(

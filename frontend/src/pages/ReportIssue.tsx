@@ -9,7 +9,6 @@ import type { GeocodeResult } from '../lib/geocode'
 import { uploadImage, hasCloudinaryConfig } from '../lib/cloudinary'
 import { IconMapPin, IconCamera, IconUpload } from '../components/Icons'
 import type { ReportIssueCategory, InspectionRegion } from '../lib/types'
-import { INSPECTION_REGIONS } from '../lib/types'
 import styles from './ReportIssue.module.css'
 import 'leaflet/dist/leaflet.css'
 
@@ -54,7 +53,6 @@ export default function ReportIssue() {
   const { user, profile } = useAuth()
   const [description, setDescription] = useState('')
   const [location, setLocation] = useState('')
-  const [region, setRegion] = useState<InspectionRegion>('lagos_nigeria')
   const [category, setCategory] = useState<ReportIssueCategory>('Waste Management')
   const [mapPosition, setMapPosition] = useState<[number, number] | null>(null)
   const [photo, setPhoto] = useState<File | null>(null)
@@ -106,6 +104,13 @@ export default function ReportIssue() {
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const inferRegionFromAddress = useCallback((address: string): InspectionRegion => {
+    const lower = address.toLowerCase()
+    if (lower.includes('kigali') || lower.includes('rwanda')) return 'kigali_rwanda'
+    if (lower.includes('lagos') || lower.includes('nigeria')) return 'lagos_nigeria'
+    return 'lagos_nigeria'
   }, [])
 
   const handleSelectSuggestion = useCallback((s: GeocodeResult) => {
@@ -173,12 +178,13 @@ export default function ReportIssue() {
         }
       }
       const title = `${category} - ${(location || 'Unspecified location').slice(0, 50)}`
+      const inferredRegion = inferRegionFromAddress(location.trim() || title)
       const reportId = await addReport({
         title,
         description: description.trim(),
         category,
         location: location.trim() || undefined,
-        region,
+        region: inferredRegion,
         photoUrl,
         lat: mapPosition?.[0],
         lng: mapPosition?.[1],
@@ -291,24 +297,7 @@ export default function ReportIssue() {
                     <IconMapPin />
                   </button>
                 </div>
-                <p className={styles.helper}>Select from suggestions or click map to set location.</p>
-              </div>
-
-              <div className={styles.field}>
-                <label htmlFor="report-region">Region</label>
-                <select
-                  id="report-region"
-                  name="region"
-                  value={region}
-                  onChange={(e) => setRegion(e.target.value as InspectionRegion)}
-                  className={styles.select}
-                  aria-label="Select report region"
-                >
-                  {INSPECTION_REGIONS.map((r) => (
-                    <option key={r.value} value={r.value}>{r.label}</option>
-                  ))}
-                </select>
-                <p className={styles.helper}>Reports are assigned to inspectors in this region.</p>
+                <p className={styles.helper}>Select from suggestions or click map to set location. Region is auto-detected from address (Kigali/Rwanda or Lagos/Nigeria).</p>
               </div>
 
               <div className={styles.field}>

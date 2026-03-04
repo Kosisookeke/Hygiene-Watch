@@ -72,7 +72,6 @@ export default function ReportTracking() {
   const { role, profile } = useAuth()
   const isAdmin = role === 'admin'
   const isInspector = role === 'inspector'
-  const canManageReport = isAdmin || (isInspector && report?.region === profile?.assignedRegion)
   const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -128,6 +127,7 @@ export default function ReportTracking() {
     )
   }
 
+  const canManageReport = isAdmin || (isInspector && report.region === profile?.assignedRegion)
   const timeline = buildTimeline(report)
 
   return (

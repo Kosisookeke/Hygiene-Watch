@@ -1,5 +1,15 @@
 import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
 import { useAuth } from '../contexts/AuthContext'
 import Loader from '../components/Loader'
 import {
@@ -25,6 +35,7 @@ import {
   IconDownload,
 } from '../components/Icons'
 import { downloadAdminStatementPdf } from '../lib/adminPdfExport'
+import { aggregateByDateAdmin } from '../lib/chartData'
 import type { Report, Tip, Comment, Profile } from '../lib/types'
 import { INSPECTION_REGIONS } from '../lib/types'
 import styles from './Dashboard.module.css'
@@ -135,6 +146,8 @@ export default function Admin() {
     return list
   }, [tips, tipCategoryFilter])
 
+  const chartData = useMemo(() => aggregateByDateAdmin(reports, tips), [reports, tips])
+
   async function handleApproveTip(id: string) {
     setUpdatingId(id)
     try {
@@ -242,6 +255,48 @@ export default function Admin() {
           <p className={adminStyles.metricValue}>{commentsCount}</p>
         </article>
       </div>
+
+      {chartData.length > 0 && (
+        <div className={adminStyles.chartCard}>
+          <h3 className={adminStyles.chartTitle}>Platform Activity Over Time</h3>
+          <div className={adminStyles.chartWrap}>
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                <Tooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="reports"
+                  name="Reports Submitted"
+                  stroke="#0f5132"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="tips"
+                  name="Tips Submitted"
+                  stroke="#166534"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="resolved"
+                  name="Reports Resolved"
+                  stroke="#15803d"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                  strokeDasharray="5 5"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className={adminStyles.tabs}>

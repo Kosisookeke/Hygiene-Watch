@@ -1,10 +1,21 @@
 import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
 import { useAuth } from '../contexts/AuthContext'
 import Loader from '../components/Loader'
 import { subscribeReportsByRegion } from '../lib/firestore'
 import { IconMapPin, IconDownload } from '../components/Icons'
 import { downloadInspectorStatementPdf } from '../lib/adminPdfExport'
+import { aggregateByDateInspector } from '../lib/chartData'
 import { INSPECTION_REGIONS } from '../lib/types'
 import type { Report } from '../lib/types'
 import styles from './Dashboard.module.css'
@@ -65,6 +76,8 @@ export default function Inspector() {
     }
     return list
   }, [reports, reportCategoryFilter, reportDateFilter])
+
+  const chartData = useMemo(() => aggregateByDateInspector(reports), [reports])
 
   const regionLabel = INSPECTION_REGIONS.find((r) => r.value === assignedRegion)?.label ?? assignedRegion ?? '—'
 
@@ -129,6 +142,40 @@ export default function Inspector() {
           <p className={adminStyles.metricValue}>{reports.length}</p>
         </article>
       </div>
+
+      {chartData.length > 0 && (
+        <div className={adminStyles.chartCard}>
+          <h3 className={adminStyles.chartTitle}>Reports in {regionLabel} Over Time</h3>
+          <div className={adminStyles.chartWrap}>
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                <Tooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="reports"
+                  name="Reports Submitted"
+                  stroke="#0f5132"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="resolved"
+                  name="Reports Resolved"
+                  stroke="#15803d"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                  strokeDasharray="5 5"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       <article className={`${styles.featureCard} ${adminStyles.tableCard}`}>
         <div className={adminStyles.sectionHeader}>

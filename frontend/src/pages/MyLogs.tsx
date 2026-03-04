@@ -1,7 +1,18 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
 import { useAuth } from '../contexts/AuthContext'
 import { subscribeReportsByUser, subscribeTipsByUser } from '../lib/firestore'
+import { aggregateByDateUser } from '../lib/chartData'
 import Loader from '../components/Loader'
 import ReportTrackerBar from '../components/ReportTrackerBar'
 import { IconMapPin, IconLightbulb } from '../components/Icons'
@@ -48,6 +59,8 @@ export default function MyLogs() {
     }
   }, [user?.uid])
 
+  const chartData = useMemo(() => aggregateByDateUser(reports, tips), [reports, tips])
+
   if (user && loading) return <Loader />
 
   const reportItems = reports.map((r) => ({
@@ -82,7 +95,40 @@ export default function MyLogs() {
           <Link to="/tips">browse tips</Link>.
         </p>
       ) : (
-        <ul className={styles.list}>
+        <>
+          {chartData.length > 0 && (
+            <div className={styles.chartCard}>
+              <h3 className={styles.chartTitle}>Activity Over Time</h3>
+              <div className={styles.chartWrap}>
+                <ResponsiveContainer width="100%" height={240}>
+                  <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="reports"
+                      name="Reports"
+                      stroke="#0f5132"
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="tips"
+                      name="Tips"
+                      stroke="#166534"
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+          <ul className={styles.list}>
           {all.map((item) => (
             <li key={`${item.type}-${item.id}`} className={styles.card}>
               <span className={styles.badge}>
@@ -122,6 +168,7 @@ export default function MyLogs() {
             </li>
           ))}
         </ul>
+        </>
       )}
     </div>
   )

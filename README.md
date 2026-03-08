@@ -1,50 +1,53 @@
 # HygieneWatch
 
-A full-stack web application for hygiene tracking and community health awareness. Built with **React** (frontend) and **Firebase** (backend) for my mission capstone project. The UI follows a clean, modern design with a green accent theme.
+A community hygiene and sanitation digital based web application. Users report issues, share hygiene tips, and track resolution. Inspectors manage reports by region, and admins oversee the platform and manage roles.
+
+**Live Demo:** (https://hygienewatch.netlify.app/)
+
+---
 
 ## Tech Stack
 
-- **Frontend:** React 18, TypeScript, Vite, React Router
-- **Backend / Auth / DB:** Firebase (Authentication, Firestore)
-
-## Live Demo
-
-**Deployed App:** [https://hygienewatch.netlify.app/](https://hygienewatch.netlify.app/)
-
-## Demo Video
-
-[Watch Demo](https://www.loom.com/share/6226b94a4f644efa9b9d22c6be4a8f36)
-
-## Design Mockup
-
-https://www.figma.com/make/fyhkrwes2JmChFyT6KDTJa/Design-HygieneWatch-UI-Mockup?fullscreen=1&t=DFf2DrrTHpZAvZ0o-1&preview-route=%2Fuser
+| Layer              | Technology                   |
+| ------------------ | ---------------------------- |
+| **Frontend**       | React 18, TypeScript, Vite 7 |
+| **Routing**        | React Router v6              |
+| **Backend / Auth** | Firebase Authentication      |
+| **Database**       | Firebase Firestore           |
+| **Maps**           | Leaflet, react-leaflet       |
+| **Charts**         | Recharts                     |
+| **PDF Export**     | jsPDF                        |
+| **Image Upload**   | Cloudinary                   |
+| **Geocoding**      | OpenStreetMap Nominatim      |
+| **Testing**        | Vitest, Testing Library      |
 
 ---
 
-There is no separate backend server; Firebase provides backend-as-a-service (auth, Firestore database).
+## Features
 
----
+### All Users
 
-## Project Structure
+- **Dashboard** – Quick actions, activity log
+- **Report Issue** – Submit sanitation reports with location, photo, category
+- **Hygiene Tips** – Browse, filter, and view tips; add comments
+- **My Logs** – View submitted reports and tips; activity chart
+- **Profile** – Edit profile, avatar, privacy settings
+- **Report Tracking** – Track report status through resolution
 
-```
-Hygiene-Watch/
-├── frontend/                 # React app
-│   ├── src/
-│   │   ├── components/       # Reusable UI components
-│   │   ├── contexts/         # Auth, Navigation
-│   │   ├── lib/              # Firebase, Firestore, geocode, types
-│   │   ├── pages/            # Route pages (Home, Dashboard, Admin, etc.)
-│   │   └── test/             # Vitest setup
-│   ├── .env.example          # Environment variable template
-│   ├── package.json
-│   └── vite.config.ts
-├── firestore.rules           # Firestore security rules
-├── firestore.indexes.json    # Firestore indexes
-├── firebase.json             # Firebase config
-├── netlify.toml              # Netlify deployment config
-└── README.md
-```
+### Inspectors
+
+- **Inspector Dashboard** – Region-filtered reports (Lagos, Kigali)
+- **Update Report Status** – pending → in_review → accepted → in_progress → resolved
+- **Resolve Reports** – Add feedback and resolution photo
+- **Download Statement (PDF)** – Export regional activity
+
+### Admins
+
+- **Admin Dashboard** – Manage reports, tips, comments, users
+- **Approve/Reject Tips** – Moderate community tips
+- **User Management** – Assign roles (user, inspector, admin) and regions
+- **Region Assignment** – Auto-assign regions from report addresses
+- **Download Statement (PDF)** – Export full platform data
 
 ---
 
@@ -53,7 +56,7 @@ Hygiene-Watch/
 ### Step 1: Clone the repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Kosisookeke/Hygiene-Watch.git
 cd Hygiene-Watch
 ```
 
@@ -66,15 +69,24 @@ npm install
 
 ### Step 3: Configure environment variables
 
-1. From the `frontend` folder, copy the example env file:
+1. Copy the example env file:
 
    ```bash
    cp .env.example .env
    ```
 
-2. Edit `.env` and add your Firebase and Cloudinary credentials:
-   - **Firebase:** Get values from [Firebase Console](https://console.firebase.google.com/) → Project Settings
-   - **Cloudinary:** Get values from [Cloudinary Console](https://console.cloudinary.com/) (create an unsigned upload preset)
+2. Edit `.env` and add your credentials:
+
+   | Variable                            | Source                                                                                  |
+   | ----------------------------------- | --------------------------------------------------------------------------------------- |
+   | `VITE_FIREBASE_API_KEY`             | [Firebase Console](https://console.firebase.google.com/) → Project Settings → Your apps |
+   | `VITE_FIREBASE_AUTH_DOMAIN`         | Same as above                                                                           |
+   | `VITE_FIREBASE_PROJECT_ID`          | Same as above                                                                           |
+   | `VITE_FIREBASE_STORAGE_BUCKET`      | Same as above                                                                           |
+   | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Same as above                                                                           |
+   | `VITE_FIREBASE_APP_ID`              | Same as above                                                                           |
+   | `VITE_CLOUDINARY_CLOUD_NAME`        | [Cloudinary Console](https://console.cloudinary.com/)                                   |
+   | `VITE_CLOUDINARY_UPLOAD_PRESET`     | Cloudinary → Upload presets (unsigned)                                                  |
 
 ### Step 4: Run the app
 
@@ -84,7 +96,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open [http://localhost:5173] in your browser.
 
 **Build for production:**
 
@@ -92,68 +104,68 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 npm run build
 ```
 
+**Preview production build:**
+
+```bash
+npm run preview
+```
+
 **Run tests:**
 
 ```bash
-npm run test        # Watch mode
-npm run test:run    # Single run
+npm run test:run
 ```
 
 ---
 
-## Testing Checklist
+## Project Structure
 
-### 1. Different Testing Strategies
+```
+Hygiene-Watch/
+├── frontend/
+│   ├── src/
+│   │   ├── components/       # Loader, ErrorBoundary, Layout, Sidebar, etc.
+│   │   ├── contexts/         # AuthContext, NavigationContext
+│   │   ├── lib/              # firebase, firestore, cloudinary, geocode, chartData, adminPdfExport, types
+│   │   ├── pages/            # Dashboard, ReportIssue, Admin, Inspector, Profile, etc.
+│   │   └── test/             # Vitest setup
+│   ├── .env.example
+│   ├── package.json
+│   └── vite.config.ts
+├── firestore.rules
+├── firestore.indexes.json
+├── netlify.toml
+└── README.md
+```
 
-**Unit tests (Vitest)**  
- Terminal output of `npm run test:run` showing passing tests  
- Key flows working in the browser (e.g. submitting a report, viewing tips)
+---
 
-**Responsive testing**  
- App on mobile view (DevTools or real device)
+## Deployment (Netlify)
 
-**How to run unit tests:**
+1. Connect your GitHub repo to Netlify
+2. **Build settings:**
+   - Base directory: `frontend`
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+3. Add environment variables (same as `.env`) in Netlify → Site settings → Environment variables
+
+---
+
+## Testing
+
+**Unit tests (Vitest):**
 
 ```bash
 cd frontend
-npm run test:run
+npm run test
 ```
 
-### 2. Different Data Values
+**Manual testing:** Use different user roles (user, inspector, admin) and test core flows: report submission, tip browsing, commenting on tips, report tracking, admin management.
 
-**Empty state**
-Dashboard or list with no data
+---
 
-**Valid data**  
- Report submitted, tip approved, comments visible
+## Related Files
 
-**Edge case**  
- Long text, special characters, or max-length input
-
-**Filter/search**
-Reports or tips filtered by category/date
-
-### 3. Performance on Different Specs
-
-**Desktop (Chrome)**  
- App running, optionally DevTools Performance tab
-
-**Mobile / tablet**  
- App on smaller screen or different device
-
-**Different browser**
-Same flow in Chrome vs Firefox vs Safari
-
-### Core Features to Demo
-
-- [ ] Submit a hygiene report (with photo, location)
-
-- [ ] Browse and filter hygiene tips
-
-- [ ] View report/tip details and add comments
-
-- [ ] Admin: approve tips, resolve reports, delete comments
-
-- [ ] Profile and privacy settings
-
-- [ ] Activity log (My Logs)
+- `frontend/.env.example` – Environment variable template
+- `firestore.rules` – Firestore security rules
+- `netlify.toml` – Netlify build and redirect config

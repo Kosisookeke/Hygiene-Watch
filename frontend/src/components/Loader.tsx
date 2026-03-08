@@ -1,7 +1,6 @@
 import styles from './Loader.module.css'
 
 interface LoaderProps {
-  /** Optional message below the loader. Default: "Loading..." */
   message?: string
 }
 

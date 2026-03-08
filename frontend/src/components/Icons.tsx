@@ -138,7 +138,6 @@ export function IconArrowRight() {
   )
 }
 
-/** Sign out / log out icon: vertical line with arrow emerging right */
 export function IconLogOut() {
   return (
     <svg {...iconProps} aria-hidden>

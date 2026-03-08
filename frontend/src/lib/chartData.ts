@@ -1,5 +1,3 @@
-/** Aggregate items by date for line charts. Returns sorted array of { date, label, reports, tips, resolved } */
-
 export interface ChartDataPoint {
   date: string
   label: string

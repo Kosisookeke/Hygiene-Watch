@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 
 interface Props {
   children: ReactNode
-  /** Optional fallback UI. If not provided, uses default error UI with back links. */
   fallback?: ReactNode
 }
 

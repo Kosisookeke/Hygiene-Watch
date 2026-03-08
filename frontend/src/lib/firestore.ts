@@ -227,7 +227,6 @@ export function subscribeReportsByUser(
   return () => unsub()
 }
 
-/** Recent activity (community-wide): all reports + approved tips, sorted by createdAt desc */
 export function subscribeRecentActivity(callback: (items: Array<Report | Tip>) => void): Unsubscribe | null {
   if (!hasFirebaseConfig || !db) return null
   let cancelled = false
@@ -265,7 +264,6 @@ export function subscribeRecentActivity(callback: (items: Array<Report | Tip>) =
   }
 }
 
-/** Log a user activity for the activity log */
 export async function logActivity(data: {
   userId: string
   action: ActivityAction
@@ -298,7 +296,6 @@ export interface ActivityLogEntry {
   createdAt: string
 }
 
-/** Subscribe to a user's activity log entries */
 export function subscribeUserActivityLog(
   userId: string,
   callback: (entries: ActivityLogEntry[]) => void
@@ -340,7 +337,6 @@ export function subscribeUserActivityLog(
   }
 }
 
-/** Recent activity for a specific user: their reports + tips, sorted by createdAt */
 export function subscribeRecentActivityByUser(
   userId: string,
   callback: (items: Array<Report | Tip>) => void
@@ -382,7 +378,6 @@ export function subscribeRecentActivityByUser(
   }
 }
 
-/** Admin: subscribe to all reports */
 export function subscribeAllReports(callback: (reports: Report[]) => void): Unsubscribe | null {
   if (!hasFirebaseConfig || !db) return null
   let cancelled = false
@@ -409,7 +404,6 @@ export function subscribeAllReports(callback: (reports: Report[]) => void): Unsu
   }
 }
 
-/** Infer region from location/title/description for filtering */
 function inferRegionFromReport(r: Report): InspectionRegion {
   const text = [r.location, r.title, r.description].filter(Boolean).join(' ').toLowerCase()
   if (text.includes('kigali') || text.includes('rwanda')) return 'kigali_rwanda'
@@ -417,7 +411,6 @@ function inferRegionFromReport(r: Report): InspectionRegion {
   return 'lagos_nigeria'
 }
 
-/** Inspector: subscribe to reports in a specific region. Uses region field when set, otherwise infers from address. */
 export function subscribeReportsByRegion(
   region: InspectionRegion,
   callback: (reports: Report[]) => void
@@ -452,7 +445,6 @@ export function subscribeReportsByRegion(
   }
 }
 
-/** Admin: subscribe to all tips (including unapproved) */
 export function subscribeAllTips(callback: (tips: Tip[]) => void): Unsubscribe | null {
   if (!hasFirebaseConfig || !db) return null
   let cancelled = false
@@ -499,7 +491,6 @@ export async function updateReportRegion(
   })
 }
 
-/** Infer region from location/title text */
 function inferRegionFromText(text: string): InspectionRegion {
   const lower = (text || '').toLowerCase()
   if (lower.includes('kigali') || lower.includes('rwanda')) return 'kigali_rwanda'
@@ -507,7 +498,6 @@ function inferRegionFromText(text: string): InspectionRegion {
   return 'lagos_nigeria'
 }
 
-/** Admin: assign region to reports based on location/title. Returns count updated. */
 export async function assignRegionsToReports(reports: Report[]): Promise<number> {
   if (!hasFirebaseConfig || !db) return 0
   let updated = 0
@@ -593,7 +583,6 @@ function docDataToReport(id: string, data: Record<string, unknown>): Report {
   }
 }
 
-/** Subscribe to real-time report updates. Returns unsubscribe function. */
 export function subscribeReport(
   reportId: string,
   callback: (report: Report | null) => void
@@ -729,7 +718,6 @@ export async function addComment(data: {
   return ref.id
 }
 
-/** Admin: subscribe to all comments (tips and reports) */
 export function subscribeAllComments(callback: (comments: Comment[]) => void): Unsubscribe | null {
   if (!hasFirebaseConfig || !db) return null
   const q = query(
@@ -758,7 +746,6 @@ export function subscribeAllComments(callback: (comments: Comment[]) => void): U
   return () => unsub()
 }
 
-/** Admin: delete a comment */
 export async function deleteComment(commentId: string): Promise<void> {
   if (!hasFirebaseConfig || !db) throw new Error('Firestore not configured')
   await deleteDoc(doc(db, COMMENTS_COLLECTION, commentId))
@@ -766,7 +753,6 @@ export async function deleteComment(commentId: string): Promise<void> {
 
 // —— Profiles (Admin: user management) ————————————————————————————————————
 
-/** Admin: subscribe to all profiles for user management (all users in Firestore profiles collection) */
 export function subscribeAllProfiles(callback: (profiles: Profile[]) => void): Unsubscribe | null {
   if (!hasFirebaseConfig || !db) return null
   const q = query(collection(db, PROFILES_COLLECTION), limit(500))
@@ -806,7 +792,6 @@ export function subscribeAllProfiles(callback: (profiles: Profile[]) => void): U
   return () => unsub()
 }
 
-/** Admin: update a user's role and assigned region (for inspectors) */
 export async function updateProfileRole(
   userId: string,
   updates: { role: Profile['role']; assignedRegion?: InspectionRegion | null }

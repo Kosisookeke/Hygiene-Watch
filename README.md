@@ -113,7 +113,7 @@ npm run preview
 **Run tests:**
 
 ```bash
-npm run test:run
+npm run test
 ```
 
 ---

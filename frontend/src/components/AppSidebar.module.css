@@ -81,7 +81,6 @@
 .navLinkActive {
   background: var(--color-bg-muted);
   color: var(--color-primary);
-  border-right: 3px solid var(--color-primary);
 }
 
 .navLinkActive:hover {

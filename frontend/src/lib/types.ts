@@ -59,6 +59,8 @@ export type ReportIssueCategory =
   | 'Water Safety'
   | 'Sanitation'
   | 'Drainage'
+  | 'Bad Roads'
+  | 'Poor Infrastructure'
   | 'Personal Hygiene'
   | 'Food Safety'
   | 'Other'

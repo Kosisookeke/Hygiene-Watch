@@ -25,6 +25,8 @@ const ISSUE_CATEGORIES: ReportIssueCategory[] = [
   'Water Safety',
   'Sanitation',
   'Drainage',
+  'Bad Roads',
+  'Poor Infrastructure',
   'Personal Hygiene',
   'Food Safety',
   'Other',

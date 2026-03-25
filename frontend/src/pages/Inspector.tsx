@@ -26,6 +26,8 @@ const REPORT_CATEGORIES: string[] = [
   'Water Safety',
   'Sanitation',
   'Drainage',
+  'Bad Roads',
+  'Poor Infrastructure',
   'Personal Hygiene',
   'Food Safety',
   'Other',
